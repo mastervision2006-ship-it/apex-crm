@@ -1,19 +1,39 @@
 'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { Lead, FASES, COR, Fase } from '@/lib/sheets'
 
 export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
-  const [leads, setLeads]           = useState<Lead[]>(initialLeads)
-  const [dragging, setDragging]     = useState<string|null>(null)
-  const [over, setOver]             = useState<Fase|null>(null)
-  const [saving, setSaving]         = useState<string|null>(null)
-  const [toast, setToast]           = useState<{msg:string, ok:boolean}|null>(null)
-  const [activeColIdx, setActiveColIdx] = useState(0)
-  const [cardModal, setCardModal]   = useState<Lead|null>(null)
+  const router = useRouter()
 
-  const boardRef      = useRef<HTMLDivElement>(null)   // desktop board
-  const mobileRef     = useRef<HTMLDivElement>(null)   // mobile scroll
-  const scrollRef     = useRef<ReturnType<typeof setInterval>|null>(null)
+  const [leads, setLeads]               = useState<Lead[]>(initialLeads)
+  const [dragging, setDragging]         = useState<string|null>(null)
+  const [over, setOver]                 = useState<Fase|null>(null)
+  const [saving, setSaving]             = useState<string|null>(null)
+  const [toast, setToast]               = useState<{msg:string, ok:boolean}|null>(null)
+  const [activeColIdx, setActiveColIdx] = useState(0)
+  const [cardModal, setCardModal]       = useState<Lead|null>(null)   // mobile
+  const [moveDropdown, setMoveDropdown] = useState<string|null>(null) // desktop
+
+  const boardRef  = useRef<HTMLDivElement>(null)
+  const mobileRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<ReturnType<typeof setInterval>|null>(null)
+  const savingRef = useRef<string|null>(null) // valor síncrono do saving
+
+  /* ── sync: quando servidor re-renderiza com dados novos ── */
+  useEffect(() => {
+    // só sobrescreve se não há save em andamento (evita race condition)
+    if (!savingRef.current) setLeads(initialLeads)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialLeads])
+
+  /* ── fechar dropdown ao clicar fora ── */
+  useEffect(() => {
+    if (!moveDropdown) return
+    const close = () => setMoveDropdown(null)
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [moveDropdown])
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok })
@@ -25,28 +45,33 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
   }
   useEffect(() => () => stopScroll(), [])
 
-  /* ── rastrear coluna ativa no mobile ── */
   const onMobileScroll = useCallback(() => {
-    const el = mobileRef.current
-    if (!el) return
+    const el = mobileRef.current; if (!el) return
     const colW = el.scrollWidth / FASES.length
     setActiveColIdx(Math.round(el.scrollLeft / colW))
   }, [])
 
-  /* ── navegar para coluna ao clicar no indicador ── */
   const goToCol = (idx: number) => {
-    const el = mobileRef.current
-    if (!el) return
+    const el = mobileRef.current; if (!el) return
     const colW = el.scrollWidth / FASES.length
     el.scrollTo({ left: colW * idx, behavior: 'smooth' })
   }
 
-  /* ── mover lead ── */
+  /* ════════════════════════════════════
+     MOVE LEAD — core da funcionalidade
+  ════════════════════════════════════ */
   const moveLead = async (lead: Lead, novaFase: Fase) => {
-    if (lead.fase === novaFase) { setCardModal(null); return }
+    if (lead.fase === novaFase) { setCardModal(null); setMoveDropdown(null); return }
+
+    // 1. Fecha UI
+    setCardModal(null)
+    setMoveDropdown(null)
+
+    // 2. Optimistic update
     setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, fase: novaFase } : l))
     setSaving(lead.id)
-    setCardModal(null)
+    savingRef.current = lead.id
+
     try {
       const res  = await fetch('/api/update-lead', {
         method: 'POST',
@@ -54,12 +79,22 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
         body: JSON.stringify({ id: lead.id, fase: novaFase }),
       })
       const data = await res.json()
-      if (data.success) showToast('✅ Movido para ' + novaFase, true)
-      else throw new Error()
+
+      if (data.success) {
+        showToast('✅ Movido para ' + novaFase, true)
+        // Aguarda 1.5s para o Google Sheets processar antes de refrescar
+        setTimeout(() => router.refresh(), 1500)
+      } else {
+        throw new Error()
+      }
     } catch {
+      // Reverte se falhou
       setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, fase: lead.fase } : l))
       showToast('❌ Erro ao salvar, tente novamente', false)
-    } finally { setSaving(null) }
+    } finally {
+      setSaving(null)
+      savingRef.current = null
+    }
   }
 
   /* ── drag-and-drop (desktop) ── */
@@ -75,6 +110,7 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
       if (sV) window.scrollBy(0, sV)
     }, 16)
   }
+
   const handleDrop = async (fase: Fase) => {
     stopScroll(); if (!dragging) return
     const lead = leads.find(l => l.id === dragging)
@@ -84,18 +120,18 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
   }
 
   const refresh = async () => {
-    try {
-      const res = await fetch('/api/leads'); const data = await res.json()
-      if (data.leads) setLeads(data.leads)
-    } catch { showToast('❌ Erro ao atualizar', false) }
+    router.refresh()
+    showToast('🔄 Atualizando...', true)
   }
 
-  /* ══════════════════════════════════════════════
-     CARD — compartilhado entre mobile e desktop
-  ══════════════════════════════════════════════ */
-  const renderCard = (lead: Lead, fase: Fase, isMobile = false) => {
+  /* ════════════════════════════════════════
+     CARD — mobile e desktop compartilhado
+  ════════════════════════════════════════ */
+  const renderCard = (lead: Lead, fase: Fase, isMobile: boolean) => {
     const cor      = COR[fase]
     const isSaving = saving === lead.id
+    const isDropOpen = moveDropdown === lead.id
+
     return (
       <div
         key={lead.id}
@@ -106,21 +142,22 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
         style={{
           background: 'var(--surface2)',
           borderRadius: 10,
-          padding: isMobile ? '12px 14px' : 14,
+          padding: '12px 14px',
           border: `1px solid ${isSaving ? cor.border : 'var(--border)'}`,
           cursor: isMobile ? 'pointer' : isSaving ? 'wait' : 'grab',
           opacity: dragging === lead.id ? 0.4 : 1,
-          transition: 'all 0.15s',
-          boxShadow: isMobile ? '0 1px 4px rgba(0,0,0,0.4)' : '0 2px 8px rgba(0,0,0,0.3)',
+          transition: 'border-color 0.15s, opacity 0.15s',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.35)',
           position: 'relative',
           userSelect: 'none',
         }}
       >
+        {/* Indicador de saving */}
         {isSaving && (
-          <div style={{ position:'absolute', top:8, right:8, width:8, height:8, borderRadius:'50%', background:'#f5a623', animation:'pulse 1s infinite' }} />
+          <div style={{ position:'absolute', top:8, right:8, width:7, height:7, borderRadius:'50%', background:'#f5a623', animation:'pulse 1s infinite' }} />
         )}
 
-        {/* Fase badge — só no mobile (dentro da coluna já é óbvio no desktop) */}
+        {/* Badge de fase — só no mobile */}
         {isMobile && (
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
             <span style={{ fontSize:9, padding:'2px 8px', borderRadius:20, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.5px', background:cor.bg, color:cor.text, border:`1px solid ${cor.border}` }}>{fase}</span>
@@ -129,11 +166,11 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
         )}
 
         {/* Nome */}
-        <p style={{ fontSize:13, fontWeight:600, lineHeight:1.35, margin:'0 0 8px', color:'#f0f2f8' }}>{lead.nome}</p>
+        <p style={{ fontSize:13, fontWeight:600, lineHeight:1.35, margin:'0 0 8px', color:'#f0f2f8', paddingRight: isMobile ? 0 : 60 }}>{lead.nome}</p>
 
         {/* Infos */}
-        {lead.tel  && <p style={{ fontSize:11, color:'var(--muted)', margin:'0 0 3px' }}>📱 {lead.tel}</p>}
-        {lead.atend && <p style={{ fontSize:11, color:'#f5a623', margin:'0 0 3px' }}>📅 {lead.atend}</p>}
+        {lead.tel   && <p style={{ fontSize:11, color:'var(--muted)', margin:'0 0 3px' }}>📱 {lead.tel}</p>}
+        {lead.atend && <p style={{ fontSize:11, color:'#f5a623',     margin:'0 0 3px' }}>📅 {lead.atend}</p>}
         {lead.feedback && (
           <p style={{ fontSize:11, color:'var(--muted)', margin:'6px 0 0', padding:'7px 9px', borderRadius:7, background:'rgba(255,255,255,0.04)', lineHeight:1.4 }}>
             💬 {lead.feedback.substring(0,80)}{lead.feedback.length>80?'…':''}
@@ -147,13 +184,76 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
             <span style={{ fontSize:10, padding:'2px 8px', borderRadius:10, background:'rgba(255,255,255,0.05)', color:'var(--muted)' }}>{lead.dias}d</span>
           </div>
         )}
+
+        {/* ── Botão MOVER (desktop only) ── */}
+        {!isMobile && (
+          <div style={{ position:'absolute', top:10, right:10 }} onMouseDown={e => e.stopPropagation()}>
+            <button
+              onClick={e => { e.stopPropagation(); setMoveDropdown(isDropOpen ? null : lead.id) }}
+              style={{
+                padding:'3px 8px', borderRadius:7, border:'1px solid var(--border)',
+                background: isDropOpen ? 'rgba(108,99,255,0.2)' : 'rgba(255,255,255,0.05)',
+                color: isDropOpen ? '#6c63ff' : 'var(--muted)',
+                fontSize:10, fontWeight:700, cursor:'pointer', letterSpacing:'0.3px',
+                transition:'all 0.15s',
+              }}
+            >
+              MOVER {isDropOpen ? '▲' : '▼'}
+            </button>
+
+            {/* Dropdown */}
+            {isDropOpen && (
+              <div
+                onMouseDown={e => e.stopPropagation()}
+                style={{
+                  position:'absolute', top:'calc(100% + 6px)', right:0, zIndex:50,
+                  background:'var(--surface)', border:'1px solid var(--border)',
+                  borderRadius:12, padding:6, minWidth:180,
+                  boxShadow:'0 8px 24px rgba(0,0,0,0.5)',
+                  display:'flex', flexDirection:'column', gap:3,
+                }}
+              >
+                <p style={{ fontSize:10, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.8px', padding:'4px 10px 6px', margin:0, borderBottom:'1px solid var(--border)' }}>
+                  Mover para
+                </p>
+                {FASES.map(f => {
+                  const c = COR[f]
+                  const isCurrent = lead.fase === f
+                  return (
+                    <button
+                      key={f}
+                      onClick={() => moveLead(lead, f)}
+                      disabled={isCurrent}
+                      style={{
+                        width:'100%', padding:'8px 10px', borderRadius:8, textAlign:'left',
+                        border:'none', cursor: isCurrent ? 'default' : 'pointer',
+                        background: isCurrent ? c.bg : 'transparent',
+                        color: isCurrent ? c.text : '#f0f2f8',
+                        fontSize:12, fontWeight: isCurrent ? 700 : 400,
+                        display:'flex', alignItems:'center', gap:8,
+                        opacity: isCurrent ? 1 : undefined,
+                        transition:'background 0.1s',
+                      }}
+                      onMouseEnter={e => { if (!isCurrent) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)' }}
+                      onMouseLeave={e => { if (!isCurrent) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                    >
+                      <span style={{ width:8, height:8, borderRadius:'50%', background:c.text, flexShrink:0, display:'inline-block' }} />
+                      {f}
+                      {isCurrent && <span style={{ marginLeft:'auto', fontSize:10, opacity:0.6 }}>atual</span>}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     )
   }
 
-  /* ══════════════════════════════════
+  /* ════════════════════════════════════
      MODAL de detalhes do card (mobile)
-  ══════════════════════════════════ */
+  ════════════════════════════════════ */
   const CardModal = () => {
     if (!cardModal) return null
     const cor = COR[cardModal.fase]
@@ -163,22 +263,15 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
         <div style={{
           position:'relative', width:'100%', zIndex:1,
           background:'var(--surface)', borderRadius:'20px 20px 0 0',
-          padding:'20px 20px 40px',
-          border:'1px solid var(--border)',
+          padding:'20px 20px 40px', border:'1px solid var(--border)',
           maxHeight:'90vh', overflowY:'auto',
         }}>
-          {/* Handle */}
           <div style={{ width:40, height:4, borderRadius:2, background:'rgba(255,255,255,0.15)', margin:'0 auto 20px' }} />
-
-          {/* Fase atual */}
           <span style={{ fontSize:10, padding:'3px 10px', borderRadius:20, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.5px', background:cor.bg, color:cor.text, border:`1px solid ${cor.border}` }}>{cardModal.fase}</span>
-
-          {/* Nome */}
           <p style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:20, margin:'12px 0 4px', lineHeight:1.2 }}>{cardModal.nome}</p>
           <p style={{ fontSize:11, color:'var(--muted)', fontFamily:'monospace', margin:'0 0 20px' }}>{cardModal.id}</p>
 
-          {/* Detalhes */}
-          <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:24 }}>
             {cardModal.email && (
               <div style={{ padding:'10px 14px', borderRadius:10, background:'rgba(255,255,255,0.04)', border:'1px solid var(--border)' }}>
                 <p style={{ fontSize:10, color:'var(--muted)', margin:'0 0 3px', textTransform:'uppercase', letterSpacing:'0.5px' }}>Email</p>
@@ -205,12 +298,10 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
             )}
           </div>
 
-          {/* Mover para */}
           <p style={{ fontSize:12, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.8px', margin:'0 0 10px' }}>Mover para</p>
           <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
             {FASES.map(fase => {
-              const c = COR[fase]
-              const isCurrent = cardModal.fase === fase
+              const c = COR[fase]; const isCurrent = cardModal.fase === fase
               return (
                 <button key={fase} onClick={() => moveLead(cardModal, fase)} style={{
                   width:'100%', padding:'13px 16px', borderRadius:12, textAlign:'left',
@@ -233,10 +324,9 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
     )
   }
 
-  /* ══════════════ RENDER ══════════════ */
+  /* ═══════════════ RENDER ═══════════════ */
   return (
     <div style={{ position:'relative' }}>
-
       {/* Toast */}
       {toast && (
         <div style={{
@@ -251,7 +341,7 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
 
       <CardModal />
 
-      {/* ── Header ── */}
+      {/* Header */}
       <div style={{ padding:'20px 16px 0', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
         <div>
           <h1 style={{ fontFamily:'Syne,sans-serif', fontSize:22, fontWeight:800, letterSpacing:-0.5, margin:0 }}>Kanban Board</h1>
@@ -264,25 +354,19 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
         </button>
       </div>
 
-      {/* ════════════════════════════════
-          MOBILE — Trello scroll horizontal
-      ════════════════════════════════ */}
+      {/* ══════════════════════════════════
+          MOBILE — scroll horizontal com snap
+      ══════════════════════════════════ */}
       <div className="kanban-mobile-wrap" style={{ overflow:'hidden' }}>
-
-        {/* Board: colunas com snap */}
         <div
           ref={mobileRef}
           onScroll={onMobileScroll}
           style={{
-            display:'flex',
-            overflowX:'scroll',
-            overflowY:'visible',
+            display:'flex', overflowX:'scroll', overflowY:'visible',
             scrollSnapType:'x mandatory',
             WebkitOverflowScrolling:'touch' as never,
-            gap:12,
-            padding:'16px 16px 12px',
-            width:'100%',
-            boxSizing:'border-box',
+            gap:12, padding:'16px 16px 12px',
+            width:'100%', boxSizing:'border-box',
             scrollbarWidth:'none' as never,
           } as React.CSSProperties}
         >
@@ -291,39 +375,27 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
             const colLeads = leads.filter(l => l.fase === fase)
             const isActive = activeColIdx === idx
             return (
-              <div
-                key={fase}
-                style={{
-                  flexShrink: 0,
-                  width: 'calc(100vw - 48px)',   // peek da próxima coluna
-                  scrollSnapAlign: 'start',
-                  borderRadius: 16,
-                  background: isActive ? 'var(--surface)' : 'rgba(17,19,24,0.85)',
-                  border: `1px solid ${isActive ? cor.border : 'var(--border)'}`,
-                  borderTop: `3px solid ${cor.text}`,
-                  transition: 'all 0.25s',
-                  minHeight: 200,
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                {/* Cabeçalho da coluna */}
+              <div key={fase} style={{
+                flexShrink:0, width:'calc(100vw - 48px)', scrollSnapAlign:'start',
+                borderRadius:16,
+                background: isActive ? 'var(--surface)' : 'rgba(17,19,24,0.85)',
+                border:`1px solid ${isActive ? cor.border : 'var(--border)'}`,
+                borderTop:`3px solid ${cor.text}`,
+                transition:'all 0.25s', minHeight:200,
+                display:'flex', flexDirection:'column',
+              }}>
                 <div style={{ padding:'14px 14px 10px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid var(--border)' }}>
                   <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                    <div style={{ width:10, height:10, borderRadius:'50%', background:cor.text, flexShrink:0 }} />
+                    <div style={{ width:10, height:10, borderRadius:'50%', background:cor.text }} />
                     <span style={{ fontSize:12, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.8px', color:cor.text }}>{fase}</span>
                   </div>
-                  <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                    <span style={{ fontSize:12, fontWeight:700, padding:'2px 10px', borderRadius:20, background:cor.bg, color:cor.text, border:`1px solid ${cor.border}` }}>{colLeads.length}</span>
-                  </div>
+                  <span style={{ fontSize:12, fontWeight:700, padding:'2px 10px', borderRadius:20, background:cor.bg, color:cor.text, border:`1px solid ${cor.border}` }}>{colLeads.length}</span>
                 </div>
-
-                {/* Cards */}
                 <div style={{ padding:'10px 12px', display:'flex', flexDirection:'column', gap:8, flex:1, overflowY:'auto', maxHeight:'calc(100vh - 260px)' }}>
                   {colLeads.length === 0 ? (
                     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'40px 0', gap:8 }}>
                       <div style={{ fontSize:28, opacity:0.3 }}>📋</div>
-                      <p style={{ fontSize:12, color:'var(--muted)', textAlign:'center' }}>Sem leads nesta fase</p>
+                      <p style={{ fontSize:12, color:'var(--muted)', textAlign:'center', margin:0 }}>Sem leads nesta fase</p>
                     </div>
                   ) : colLeads.map(lead => renderCard(lead, fase, true))}
                 </div>
@@ -332,40 +404,28 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
           })}
         </div>
 
-        {/* Indicadores de posição (• • • • •) estilo Trello */}
-        <div style={{ display:'flex', justifyContent:'center', alignItems:'center', gap:6, padding:'0 0 16px' }}>
+        {/* Indicadores de posição */}
+        <div style={{ display:'flex', justifyContent:'center', alignItems:'center', gap:6, padding:'0 0 12px' }}>
           {FASES.map((fase, idx) => {
             const isActive = activeColIdx === idx
             return (
-              <button
-                key={fase}
-                onClick={() => goToCol(idx)}
-                style={{
-                  width: isActive ? 24 : 7,
-                  height: 7,
-                  borderRadius: 4,
-                  background: isActive ? COR[fase].text : 'rgba(255,255,255,0.2)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: 0,
-                  transition: 'all 0.25s',
-                }}
-              />
+              <button key={fase} onClick={() => goToCol(idx)} style={{
+                width: isActive ? 24 : 7, height:7, borderRadius:4, padding:0, border:'none', cursor:'pointer',
+                background: isActive ? COR[fase].text : 'rgba(255,255,255,0.2)',
+                transition:'all 0.25s',
+              }} />
             )
           })}
         </div>
-
-        {/* Nome da coluna atual */}
         <p style={{ textAlign:'center', fontSize:11, color:'var(--muted)', margin:'0 0 8px', letterSpacing:'0.5px' }}>
           {activeColIdx + 1} / {FASES.length} · {FASES[activeColIdx]}
         </p>
       </div>
 
-      {/* ════════════════════════════════
+      {/* ══════════════════════════════════
           DESKTOP — drag-and-drop grid
-      ════════════════════════════════ */}
+      ══════════════════════════════════ */}
       <div className="kanban-desktop-wrap" style={{ padding:'16px 32px 32px' }}>
-
         {/* Drop zones ao arrastar */}
         {dragging && (
           <div style={{ display:'flex', gap:8, marginBottom:16 }}>
@@ -391,7 +451,10 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
           </div>
         )}
 
-        <div ref={boardRef} style={{ display:'grid', gridTemplateColumns:'repeat(5, minmax(200px, 1fr))', gap:14, alignItems:'start', overflowX:'auto', paddingBottom:16 }}>
+        <div
+          ref={boardRef}
+          style={{ display:'grid', gridTemplateColumns:'repeat(5, minmax(220px, 1fr))', gap:14, alignItems:'start', overflowX:'auto', paddingBottom:16 }}
+        >
           {FASES.map(fase => {
             const cor = COR[fase]; const colLeads = leads.filter(l=>l.fase===fase); const isOver = over===fase
             return (
@@ -400,7 +463,7 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
                 onDrop={()=>handleDrop(fase)}
                 onDragLeave={e=>{if(!e.currentTarget.contains(e.relatedTarget as Node)){setOver(null);stopScroll()}}}
                 style={{
-                  borderRadius:16, padding:12, minHeight:400, transition:'all 0.15s',
+                  borderRadius:16, padding:12, minHeight:420, transition:'background 0.15s, border-color 0.15s',
                   background: isOver ? cor.bg : 'var(--surface)',
                   border:`1px solid ${isOver?cor.border:'var(--border)'}`,
                   borderTop:`3px solid ${cor.text}`,
@@ -426,12 +489,8 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
 
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-        .kanban-mobile-wrap::-webkit-scrollbar { display:none; }
-
-        /* Mobile: mostra mobile, esconde desktop */
         .kanban-mobile-wrap  { display: block; }
         .kanban-desktop-wrap { display: none;  }
-
         @media (min-width: 768px) {
           .kanban-mobile-wrap  { display: none;  }
           .kanban-desktop-wrap { display: block; }

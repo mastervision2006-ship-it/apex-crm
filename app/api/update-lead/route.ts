@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
+import { revalidatePath } from 'next/cache'
 
 export async function POST(req: Request) {
   const session = await getSession()
@@ -7,7 +8,10 @@ export async function POST(req: Request) {
 
   const { id, fase } = await req.json()
   const url = process.env.APPS_SCRIPT_URL
-  if (!url || url.includes('SEU_ID')) return NextResponse.json({ success: true }) // mock
+  if (!url || url.includes('SEU_ID')) {
+    revalidatePath('/dashboard/kanban')
+    return NextResponse.json({ success: true }) // mock
+  }
 
   try {
     const res = await fetch(url, {
@@ -15,6 +19,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({ action: 'updateFase', id, fase }),
     })
     const data = await res.json()
+    if (data.success) revalidatePath('/dashboard/kanban')
     return NextResponse.json({ success: data.success })
   } catch {
     return NextResponse.json({ success: false })
