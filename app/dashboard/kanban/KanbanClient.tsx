@@ -8,32 +8,53 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
   const [over, setOver]         = useState<Fase|null>(null)
   const [saving, setSaving]     = useState<string|null>(null)
   const [toast, setToast]       = useState<{msg:string, ok:boolean}|null>(null)
-  const boardRef = useRef<HTMLDivElement>(null)
-  const scrollInterval = useRef<any>(null)
+  const boardRef   = useRef<HTMLDivElement>(null)
+  const scrollRef  = useRef<any>(null)
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok })
     setTimeout(() => setToast(null), 3000)
   }
 
-  const handleDragOver = (e: React.DragEvent, fase: Fase) => {
-    e.preventDefault()
-    setOver(fase)
-    const y = e.clientY
-    const threshold = 80
-    if (scrollInterval.current) clearInterval(scrollInterval.current)
-    if (y < threshold) {
-      scrollInterval.current = setInterval(() => window.scrollBy(0, -8), 16)
-    } else if (y > window.innerHeight - threshold) {
-      scrollInterval.current = setInterval(() => window.scrollBy(0, 8), 16)
-    }
-  }
-
   const stopScroll = () => {
-    if (scrollInterval.current) { clearInterval(scrollInterval.current); scrollInterval.current = null }
+    if (scrollRef.current) { clearInterval(scrollRef.current); scrollRef.current = null }
   }
 
   useEffect(() => () => stopScroll(), [])
+
+  // Scroll horizontal e vertical enquanto arrasta
+  const handleDragOver = (e: React.DragEvent, fase: Fase) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setOver(fase)
+
+    const board = boardRef.current
+    if (!board) return
+
+    stopScroll()
+
+    const x = e.clientX
+    const y = e.clientY
+    const threshold = 100
+
+    // Scroll horizontal do board
+    const rectBoard = board.getBoundingClientRect()
+    const scrollH = x < rectBoard.left + threshold ? -10
+                  : x > rectBoard.right - threshold ? 10
+                  : 0
+
+    // Scroll vertical da página
+    const scrollV = y < threshold ? -10
+                  : y > window.innerHeight - threshold ? 10
+                  : 0
+
+    if (scrollH !== 0 || scrollV !== 0) {
+      scrollRef.current = setInterval(() => {
+        if (scrollH !== 0) board.scrollLeft += scrollH
+        if (scrollV !== 0) window.scrollBy(0, scrollV)
+      }, 16)
+    }
+  }
 
   const handleDrop = async (fase: Fase) => {
     stopScroll()
@@ -88,17 +109,57 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
         </div>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
           <h1 style={{ fontFamily: 'Syne,sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: -0.5, margin: 0 }}>Kanban Board</h1>
-          <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 6 }}>Arraste os cards para mover entre fases</p>
+          <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 6 }}>Arraste o card para o lado para mudar de fase</p>
         </div>
         <button onClick={refresh} style={{ padding: '8px 18px', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--muted)', fontSize: 13, cursor: 'pointer' }}>
           🔄 Atualizar
         </button>
       </div>
 
-      <div ref={boardRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, alignItems: 'start' }}>
+      {/* Indicador de fases no topo — zona de drop sempre visível */}
+      {dragging && (
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          {FASES.map(fase => {
+            const cor     = COR[fase]
+            const isOver  = over === fase
+            const lead    = leads.find(l => l.id === dragging)
+            const isCurrent = lead?.fase === fase
+            return (
+              <div key={fase}
+                onDragOver={e => { e.preventDefault(); setOver(fase) }}
+                onDrop={() => handleDrop(fase)}
+                onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setOver(null) }}
+                style={{
+                  flex: 1, padding: '10px 8px', borderRadius: 12, textAlign: 'center',
+                  fontSize: 11, fontWeight: 700, cursor: 'copy', transition: 'all 0.15s',
+                  background: isOver ? cor.bg : isCurrent ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
+                  border: `2px solid ${isOver ? cor.text : isCurrent ? cor.border : 'var(--border)'}`,
+                  color: isOver ? cor.text : isCurrent ? cor.text : 'var(--muted)',
+                  transform: isOver ? 'scale(1.03)' : 'scale(1)',
+                }}
+              >
+                {isCurrent ? '📍 ' : ''}{fase}
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Board com scroll horizontal */}
+      <div
+        ref={boardRef}
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(5, minmax(200px, 1fr))',
+          gap: 14,
+          alignItems: 'start',
+          overflowX: 'auto',
+          paddingBottom: 16,
+        }}
+      >
         {FASES.map(fase => {
           const cor      = COR[fase]
           const colLeads = leads.filter(l => l.fase === fase)
@@ -112,7 +173,7 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
                 if (!e.currentTarget.contains(e.relatedTarget as Node)) { setOver(null); stopScroll() }
               }}
               style={{
-                borderRadius: 16, padding: 12, minHeight: 500, transition: 'all 0.15s',
+                borderRadius: 16, padding: 12, minHeight: 400, transition: 'all 0.15s',
                 background: isOver ? cor.bg : 'var(--surface)',
                 border: `1px solid ${isOver ? cor.border : 'var(--border)'}`,
                 borderTop: `3px solid ${cor.text}`,
