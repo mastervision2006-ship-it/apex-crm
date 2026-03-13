@@ -30,3 +30,113 @@ body::before {
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+
+/* ─── Sidebar drawer ─────────────────────────────── */
+.sidebar-drawer {
+  position: fixed; left: 0; top: 0; height: 100vh; width: 220px;
+  transition: transform 0.25s ease;
+  z-index: 100;
+}
+.sidebar-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 99;
+  display: none;
+}
+.sidebar-overlay.active { display: block; }
+
+@media (max-width: 767px) {
+  .sidebar-drawer { transform: translateX(-100%); }
+  .sidebar-drawer.open { transform: translateX(0); }
+}
+@media (min-width: 768px) {
+  .sidebar-drawer { transform: translateX(0) !important; }
+  .sidebar-overlay { display: none !important; }
+}
+
+/* ─── Mobile top bar ─────────────────────────────── */
+.mobile-topbar {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; height: 56px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  align-items: center; padding: 0 16px; gap: 12px;
+  z-index: 98;
+}
+@media (max-width: 767px) { .mobile-topbar { display: flex; } }
+
+/* ─── Dashboard main ─────────────────────────────── */
+.dashboard-main {
+  flex: 1; position: relative; z-index: 1;
+  margin-left: 220px;
+}
+@media (max-width: 767px) {
+  .dashboard-main {
+    margin-left: 0;
+    padding-top: 56px;
+  }
+}
+
+/* ─── Page padding ───────────────────────────────── */
+.page-pad { padding: 20px 16px; }
+@media (min-width: 768px) { .page-pad { padding: 32px; } }
+
+/* ─── Grid KPIs (5 cols) ─────────────────────────── */
+.grid-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+@media (min-width: 640px) {
+  .grid-kpis { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1024px) {
+  .grid-kpis { grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 28px; }
+}
+
+/* ─── Grid Charts (1fr + 2fr) ────────────────────── */
+.grid-charts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (min-width: 1024px) {
+  .grid-charts { grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 20px; }
+}
+
+/* ─── Grid half (2 cols) ─────────────────────────── */
+.grid-half {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 768px) {
+  .grid-half { grid-template-columns: 1fr 1fr; gap: 20px; }
+}
+
+/* ─── Grid 4 cols (relatório) ────────────────────── */
+.grid-4col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+@media (min-width: 1024px) {
+  .grid-4col { grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+}
+
+/* ─── Leads table / cards ────────────────────────── */
+.leads-table-wrap { display: none; }
+.leads-cards-wrap { display: flex; flex-direction: column; gap: 12px; }
+@media (min-width: 768px) {
+  .leads-table-wrap { display: block; }
+  .leads-cards-wrap { display: none; }
+}
+
+/* Kanban: controlado inline no componente */
+
+/* ─── Desktop only ───────────────────────────────── */
+.desktop-only { display: none; }
+@media (min-width: 768px) { .desktop-only { display: block; } }

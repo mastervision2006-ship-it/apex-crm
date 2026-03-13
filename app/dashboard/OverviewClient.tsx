@@ -19,24 +19,28 @@ export function OverviewClient({ leads }: { leads: Lead[] }) {
 
   const pieData = FASES.map(f => ({ name:f, value: leads.filter(l=>l.fase===f).length }))
 
+  // Bug fix: handle "DD/MM/YYYY HH:MM" format correctly
   const barData = Array.from({length:6},(_,i)=>{
     const d = new Date(); d.setMonth(d.getMonth()-(5-i))
     const label = d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'})
     const m = d.getMonth(), y = d.getFullYear()
     const cnt = leads.filter(l=>{
       if(!l.dataCad) return false
-      const p = l.dataCad.split('/')
-      return p.length>=3 && parseInt(p[1])-1===m && parseInt(p[2])===y
+      const parts = l.dataCad.split(' ')[0].split('/')
+      if(parts.length < 3) return false
+      const month = parseInt(parts[1]) - 1
+      const year  = parseInt(parts[2])
+      return !isNaN(month) && !isNaN(year) && month === m && year === y
     }).length
     return { name:label, leads:cnt }
   })
 
-  const ultimos = [...leads].slice(-5).reverse()
+  const ultimos = leads.slice(-5).reverse()
 
   return (
-    <div style={{ padding:32 }}>
+    <div className="page-pad">
       {/* Header */}
-      <div style={{ marginBottom:32 }}>
+      <div style={{ marginBottom:24 }}>
         <h1 style={{ fontFamily:'Syne,sans-serif', fontSize:24, fontWeight:800, letterSpacing:-0.5, margin:0 }}>Visão Geral</h1>
         <p style={{ color:'var(--muted)', fontSize:13, marginTop:6 }}>
           {new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
@@ -44,20 +48,20 @@ export function OverviewClient({ leads }: { leads: Lead[] }) {
       </div>
 
       {/* KPIs */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:16, marginBottom:28 }}>
+      <div className="grid-kpis">
         {kpis.map((k,i) => (
           <div key={k.label} style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:16, padding:20, position:'relative', overflow:'hidden' }}>
             <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:KPI_COLORS[i] }} />
             <div style={{ position:'absolute', right:16, top:16, fontSize:22, opacity:0.2 }}>{k.icon}</div>
             <p style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'1px', color:'var(--muted)', marginBottom:10 }}>{k.label}</p>
-            <p style={{ fontFamily:'Syne,sans-serif', fontSize:32, fontWeight:800, color:KPI_COLORS[i], lineHeight:1 }}>{k.value}</p>
+            <p style={{ fontFamily:'Syne,sans-serif', fontSize:28, fontWeight:800, color:KPI_COLORS[i], lineHeight:1 }}>{k.value}</p>
             <p style={{ fontSize:11, color:'var(--muted)', marginTop:6 }}>{k.sub}</p>
           </div>
         ))}
       </div>
 
       {/* Charts */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 2fr', gap:20, marginBottom:20 }}>
+      <div className="grid-charts">
         <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:16, padding:24 }}>
           <p style={{ fontFamily:'Syne,sans-serif', fontSize:13, fontWeight:700, marginBottom:20 }}>🎯 Leads por Fase</p>
           <ResponsiveContainer width="100%" height={200}>
@@ -84,7 +88,7 @@ export function OverviewClient({ leads }: { leads: Lead[] }) {
       </div>
 
       {/* Funil + Últimos */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
+      <div className="grid-half">
         <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:16, padding:24 }}>
           <p style={{ fontFamily:'Syne,sans-serif', fontSize:13, fontWeight:700, marginBottom:20 }}>🔻 Funil de Conversão</p>
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
@@ -118,10 +122,10 @@ export function OverviewClient({ leads }: { leads: Lead[] }) {
                     {(l.nome||'?')[0].toUpperCase()}
                   </div>
                   <div style={{ flex:1, minWidth:0 }}>
-                    <p style={{ fontSize:13, fontWeight:500, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{l.nome}</p>
-                    <p style={{ fontSize:11, color:'var(--muted)' }}>{l.dataCad}</p>
+                    <p style={{ fontSize:13, fontWeight:500, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', margin:0 }}>{l.nome}</p>
+                    <p style={{ fontSize:11, color:'var(--muted)', margin:0 }}>{l.dataCad}</p>
                   </div>
-                  <span style={{ fontSize:10, padding:'3px 10px', borderRadius:20, fontWeight:600, background:COR[l.fase]?.bg, color:cor, border:`1px solid ${COR[l.fase]?.border}`, flexShrink:0 }}>{l.fase}</span>
+                  <span style={{ fontSize:10, padding:'3px 10px', borderRadius:20, fontWeight:600, background:COR[l.fase]?.bg, color:cor, border:`1px solid ${COR[l.fase]?.border}`, flexShrink:0, whiteSpace:'nowrap' }}>{l.fase}</span>
                 </div>
               )
             })}

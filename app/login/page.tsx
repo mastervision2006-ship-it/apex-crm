@@ -13,16 +13,21 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const res  = await fetch('/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    })
-    const data = await res.json()
-    if (data.success) {
-      router.push('/dashboard')
-    } else {
-      setError('Usuário ou senha incorretos')
+    try {
+      const res  = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        router.push('/dashboard')
+      } else {
+        setError('Usuário ou senha incorretos')
+        setLoading(false)
+      }
+    } catch {
+      setError('Erro de conexão. Tente novamente.')
       setLoading(false)
     }
   }
@@ -30,8 +35,8 @@ export default function LoginPage() {
   return (
     <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', position:'relative' }}>
       {/* Orbs */}
-      <div style={{ position:'absolute', top:'20%', left:'20%', width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle, rgba(108,99,255,0.2) 0%, transparent 70%)', filter:'blur(60px)', pointerEvents:'none' }} />
-      <div style={{ position:'absolute', bottom:'20%', right:'20%', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle, rgba(0,212,170,0.15) 0%, transparent 70%)', filter:'blur(60px)', pointerEvents:'none' }} />
+      <div style={{ position:'absolute', top:'10%', left:'5%', width:'min(400px, 60vw)', height:'min(400px, 60vw)', borderRadius:'50%', background:'radial-gradient(circle, rgba(108,99,255,0.2) 0%, transparent 70%)', filter:'blur(60px)', pointerEvents:'none' }} />
+      <div style={{ position:'absolute', bottom:'10%', right:'5%', width:'min(300px, 50vw)', height:'min(300px, 50vw)', borderRadius:'50%', background:'radial-gradient(circle, rgba(0,212,170,0.15) 0%, transparent 70%)', filter:'blur(60px)', pointerEvents:'none' }} />
 
       <div style={{ position:'relative', zIndex:1, width:'100%', maxWidth:400, padding:'0 24px' }}>
         {/* Logo */}
