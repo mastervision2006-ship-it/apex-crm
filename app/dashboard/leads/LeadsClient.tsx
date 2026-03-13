@@ -5,6 +5,7 @@ import { Lead, FASES, COR } from '@/lib/sheets'
 export function LeadsClient({ leads }: { leads: Lead[] }) {
   const [search, setSearch]         = useState('')
   const [faseFilter, setFaseFilter] = useState('todas')
+  const [tooltip, setTooltip]       = useState<{ feedback: string; x: number; y: number } | null>(null)
 
   const filtered = [...leads].reverse().filter(l => {
     const q = search.toLowerCase()
@@ -59,11 +60,17 @@ export function LeadsClient({ leads }: { leads: Lead[] }) {
                 <tr key={l.id} style={{ borderBottom:'1px solid rgba(255,255,255,0.03)' }}>
                   <td style={{ padding:'12px 16px', fontSize:11, color:'var(--muted)', fontFamily:'monospace' }}>{l.id}</td>
                   <td style={{ padding:'12px 16px' }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <div
+                      style={{ display:'flex', alignItems:'center', gap:10, cursor: l.feedback ? 'default' : undefined }}
+                      onMouseEnter={l.feedback ? (e) => setTooltip({ feedback: l.feedback, x: e.clientX, y: e.clientY }) : undefined}
+                      onMouseMove={l.feedback ? (e) => setTooltip(t => t ? { ...t, x: e.clientX, y: e.clientY } : null) : undefined}
+                      onMouseLeave={l.feedback ? () => setTooltip(null) : undefined}
+                    >
                       <div style={{ width:28, height:28, borderRadius:'50%', background:'rgba(108,99,255,0.15)', color:'#6c63ff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, flexShrink:0 }}>
                         {(l.nome||'?')[0].toUpperCase()}
                       </div>
                       <span style={{ fontSize:13, fontWeight:500 }}>{l.nome}</span>
+                      {l.feedback && <span style={{ fontSize:9, color:'#6c63ff', marginLeft:2 }}>💬</span>}
                     </div>
                   </td>
                   <td style={{ padding:'12px 16px', fontSize:12, color:'var(--muted)' }}>{l.tel}</td>
@@ -141,6 +148,26 @@ export function LeadsClient({ leads }: { leads: Lead[] }) {
           )
         })}
       </div>
+
+      {/* Tooltip de feedback */}
+      {tooltip && (
+        <div style={{
+          position: 'fixed',
+          left: tooltip.x + 14,
+          top: tooltip.y - 8,
+          zIndex: 9999,
+          maxWidth: 280,
+          background: '#1a1d26',
+          border: '1px solid rgba(108,99,255,0.35)',
+          borderRadius: 10,
+          padding: '10px 14px',
+          pointerEvents: 'none',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+        }}>
+          <p style={{ fontSize:10, color:'#6c63ff', textTransform:'uppercase', letterSpacing:'0.8px', margin:'0 0 6px', fontWeight:600 }}>Feedback</p>
+          <p style={{ fontSize:12, color:'#f0f2f8', margin:0, lineHeight:1.6 }}>{tooltip.feedback}</p>
+        </div>
+      )}
     </div>
   )
 }
