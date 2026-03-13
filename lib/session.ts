@@ -1,0 +1,20 @@
+import { getIronSession, IronSession } from 'iron-session'
+import { cookies } from 'next/headers'
+
+export interface SessionData {
+  loggedIn: boolean
+}
+
+const sessionOptions = {
+  password: process.env.SESSION_SECRET || 'complexpassword-at-least-32-chars-long!!',
+  cookieName: 'apex-crm-session',
+  cookieOptions: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 7, // 7 dias
+  },
+}
+
+export async function getSession(): Promise<IronSession<SessionData>> {
+  const session = await getIronSession<SessionData>(cookies(), sessionOptions)
+  return session
+}
