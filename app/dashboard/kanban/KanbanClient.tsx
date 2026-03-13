@@ -1,11 +1,8 @@
 'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { Lead, FASES, COR, Fase } from '@/lib/sheets'
 
 export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
-  const router = useRouter()
-
   const [leads, setLeads]               = useState<Lead[]>(initialLeads)
   const [dragging, setDragging]         = useState<string|null>(null)
   const [over, setOver]                 = useState<Fase|null>(null)
@@ -18,14 +15,6 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
   const boardRef  = useRef<HTMLDivElement>(null)
   const mobileRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<ReturnType<typeof setInterval>|null>(null)
-  const savingRef = useRef<string|null>(null) // valor síncrono do saving
-
-  /* ── sync: quando servidor re-renderiza com dados novos ── */
-  useEffect(() => {
-    // só sobrescreve se não há save em andamento (evita race condition)
-    if (!savingRef.current) setLeads(initialLeads)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialLeads])
 
   /* ── fechar dropdown ao clicar fora ── */
   useEffect(() => {
@@ -67,10 +56,9 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
     setCardModal(null)
     setMoveDropdown(null)
 
-    // 2. Optimistic update
+    // 2. Optimistic update — move imediatamente na tela
     setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, fase: novaFase } : l))
     setSaving(lead.id)
-    savingRef.current = lead.id
 
     try {
       const res  = await fetch('/api/update-lead', {
@@ -82,18 +70,16 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
 
       if (data.success) {
         showToast('✅ Movido para ' + novaFase, true)
-        // Aguarda 1.5s para o Google Sheets processar antes de refrescar
-        setTimeout(() => router.refresh(), 1500)
+        // revalidatePath já foi chamado no servidor — próxima visita traz dados frescos
       } else {
         throw new Error()
       }
     } catch {
-      // Reverte se falhou
+      // Reverte somente se o servidor confirmou falha
       setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, fase: lead.fase } : l))
       showToast('❌ Erro ao salvar, tente novamente', false)
     } finally {
       setSaving(null)
-      savingRef.current = null
     }
   }
 
@@ -120,8 +106,14 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
   }
 
   const refresh = async () => {
-    router.refresh()
-    showToast('🔄 Atualizando...', true)
+    try {
+      const res = await fetch('/api/leads')
+      const data = await res.json()
+      if (data.leads) setLeads(data.leads)
+      showToast('✅ Atualizado!', true)
+    } catch {
+      showToast('❌ Erro ao atualizar', false)
+    }
   }
 
   /* ════════════════════════════════════════
