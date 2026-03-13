@@ -71,7 +71,7 @@ export function LeadsClient({ leads }: { leads: Lead[] }) {
                   <td style={{ padding:'12px 16px', fontSize:12, color:'var(--muted)' }}>{l.dataCad?.split(' ')[0]}</td>
                   <td style={{ padding:'12px 16px', fontSize:12, color:'#f5a623' }}>{l.atend||'—'}</td>
                   <td style={{ padding:'12px 16px' }}>
-                    <span style={{ fontSize:11, padding:'3px 10px', borderRadius:20, fontWeight:600, background:cor.bg, color:cor.text, border:`1px solid ${cor.border}` }}>{l.fase}</span>
+                    <span style={{ fontSize:11, padding:'3px 10px', borderRadius:20, fontWeight:600, whiteSpace:'nowrap', background:cor.bg, color:cor.text, border:`1px solid ${cor.border}` }}>{l.fase}</span>
                   </td>
                   <td style={{ padding:'12px 16px', fontSize:12, color:'var(--muted)', maxWidth:180, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{l.feedback||'—'}</td>
                   <td style={{ padding:'12px 16px' }}>
