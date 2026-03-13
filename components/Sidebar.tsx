@@ -40,11 +40,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         }}
       >
         {/* Logo */}
-        <div style={{ padding:'24px 20px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:12 }}>
-          <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#6c63ff,#00d4aa)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0 }}>⚡</div>
-          <div>
-            <p style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:13, lineHeight:1.2 }}>Apex Quantum</p>
-            <p style={{ color:'var(--muted)', fontSize:11 }}>CRM Premium</p>
+        <div style={{ padding:'20px 12px', borderBottom:'1px solid var(--border)', display:'flex', flexDirection:'column', alignItems:'center', gap:8 }}>
+          <img src="/logo.png" alt="Apex Quantum" style={{ width:100, height:100, borderRadius:16, objectFit:'cover' }} />
+          <div style={{ textAlign:'center' }}>
+            <p style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:13, lineHeight:1.2, margin:0 }}>Apex Quantum</p>
+            <p style={{ color:'var(--muted)', fontSize:11, margin:0 }}>CRM Premium</p>
           </div>
         </div>
 

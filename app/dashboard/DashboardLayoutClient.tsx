@@ -17,7 +17,7 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
           ☰
         </button>
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-          <div style={{ width:28, height:28, borderRadius:8, background:'linear-gradient(135deg,#6c63ff,#00d4aa)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:13 }}>⚡</div>
+          <img src="/logo.png" alt="Apex Quantum" style={{ width:28, height:28, borderRadius:8, objectFit:'cover' }} />
           <span style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:14 }}>Apex Quantum</span>
         </div>
       </div>
