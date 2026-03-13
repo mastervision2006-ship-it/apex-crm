@@ -153,7 +153,7 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
         {/* Badge de fase — só no mobile */}
         {isMobile && (
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
-            <span style={{ fontSize:9, padding:'2px 8px', borderRadius:20, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.5px', background:cor.bg, color:cor.text, border:`1px solid ${cor.border}` }}>{fase}</span>
+            <span style={{ fontSize:9, padding:'2px 8px', borderRadius:20, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', background:cor.bg, color:cor.text, border:`1px solid ${cor.border}` }}>{fase}</span>
             <span style={{ fontSize:10, color:'var(--muted)' }}>{lead.dias}d</span>
           </div>
         )}
