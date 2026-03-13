@@ -20,8 +20,9 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
   useEffect(() => {
     if (!moveDropdown) return
     const close = () => setMoveDropdown(null)
-    document.addEventListener('mousedown', close)
-    return () => document.removeEventListener('mousedown', close)
+    // Usar 'click' (não 'mousedown') para não fechar antes do onClick dos botões
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
   }, [moveDropdown])
 
   const showToast = (msg: string, ok: boolean) => {
@@ -179,7 +180,7 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
 
         {/* ── Botão MOVER (desktop only) ── */}
         {!isMobile && (
-          <div style={{ position:'absolute', top:10, right:10 }} onMouseDown={e => e.stopPropagation()}>
+          <div style={{ position:'absolute', top:10, right:10 }} onClick={e => e.stopPropagation()}>
             <button
               onClick={e => { e.stopPropagation(); setMoveDropdown(isDropOpen ? null : lead.id) }}
               style={{
@@ -196,7 +197,7 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
             {/* Dropdown */}
             {isDropOpen && (
               <div
-                onMouseDown={e => e.stopPropagation()}
+                onClick={e => e.stopPropagation()}
                 style={{
                   position:'absolute', top:'calc(100% + 6px)', right:0, zIndex:50,
                   background:'var(--surface)', border:'1px solid var(--border)',
@@ -214,7 +215,7 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
                   return (
                     <button
                       key={f}
-                      onClick={() => moveLead(lead, f)}
+                      onClick={e => { e.stopPropagation(); moveLead(lead, f) }}
                       disabled={isCurrent}
                       style={{
                         width:'100%', padding:'8px 10px', borderRadius:8, textAlign:'left',
@@ -223,7 +224,6 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
                         color: isCurrent ? c.text : '#f0f2f8',
                         fontSize:12, fontWeight: isCurrent ? 700 : 400,
                         display:'flex', alignItems:'center', gap:8,
-                        opacity: isCurrent ? 1 : undefined,
                         transition:'background 0.1s',
                       }}
                       onMouseEnter={e => { if (!isCurrent) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)' }}
