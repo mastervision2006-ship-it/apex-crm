@@ -460,7 +460,7 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
                   border:`1px solid ${isOver?cor.border:'var(--border)'}`,
                   borderTop:`3px solid ${cor.text}`,
                   display:'flex', flexDirection:'column',
-                  height:'calc(100vh - 220px)',
+                  height:'calc(100vh - 140px)',
                 }}
               >
                 {/* Header fixo da coluna */}
