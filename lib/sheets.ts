@@ -1,17 +1,22 @@
 import { supabase } from '@/lib/supabase'
 
 export interface Lead {
-  id:       string
-  nome:     string
-  email:    string
-  tel:      string
-  dataCad:  string
-  atend:    string
-  fase:     Fase
-  resp:     string
-  feedback: string
-  ultimaAt: string
-  dias:     number
+  id:           string
+  nome:         string
+  email:        string
+  tel:          string
+  dataCad:      string
+  atend:        string
+  fase:         Fase
+  resp:         string
+  feedback:     string
+  ultimaAt:     string
+  dias:         number
+  utm_source:   string
+  utm_campaign: string
+  utm_medium:   string
+  utm_content:  string
+  utm_term:     string
 }
 
 export type Fase = 'Novo Lead' | 'Contato Feito' | 'Negociação' | 'Fechado/Ganho' | 'Perdido'

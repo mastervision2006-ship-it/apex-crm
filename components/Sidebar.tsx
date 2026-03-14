@@ -3,10 +3,11 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
 const nav = [
-  { href:'/dashboard',           icon:'📊', label:'Overview'  },
-  { href:'/dashboard/kanban',    icon:'🗂️', label:'Kanban'    },
-  { href:'/dashboard/leads',     icon:'👥', label:'Leads'     },
-  { href:'/dashboard/relatorio', icon:'📈', label:'Relatório' },
+  { href:'/dashboard',              icon:'📊', label:'Overview'      },
+  { href:'/dashboard/kanban',       icon:'🗂️', label:'Kanban'        },
+  { href:'/dashboard/leads',        icon:'👥', label:'Leads'         },
+  { href:'/dashboard/relatorio',    icon:'📈', label:'Relatório'     },
+  { href:'/dashboard/rastreamento', icon:'🎯', label:'Rastreamento'  },
 ]
 
 interface SidebarProps {
