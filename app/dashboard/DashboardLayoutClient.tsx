@@ -1,7 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { Sidebar } from '@/components/Sidebar'
-export function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
+
+export function DashboardLayoutClient({ children, role }: { children: React.ReactNode, role: 'admin' | 'gerente' }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
@@ -21,7 +22,7 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
         </div>
       </div>
 
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} role={role} />
 
       <main className="dashboard-main">
         {children}

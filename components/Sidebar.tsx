@@ -13,9 +13,11 @@ const nav = [
 interface SidebarProps {
   isOpen: boolean
   onClose: () => void
+  role: 'admin' | 'gerente'
 }
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, role }: SidebarProps) {
+  const visibleNav = nav.filter(n => !(n.href === '/dashboard/rastreamento' && role === 'gerente'))
   const pathname = usePathname()
   const router   = useRouter()
 
@@ -51,7 +53,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
         {/* Nav */}
         <nav style={{ flex:1, padding:'16px 12px', display:'flex', flexDirection:'column', gap:4 }}>
-          {nav.map(({ href, icon, label }) => {
+          {visibleNav.map(({ href, icon, label }) => {
             const active = pathname === href
             return (
               <Link key={href} href={href} onClick={onClose} style={{

@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 
 export interface SessionData {
   loggedIn: boolean
+  role: 'admin' | 'gerente'
 }
 
 const sessionOptions = {

@@ -6,5 +6,5 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const session = await getSession()
   if (!session.loggedIn) redirect('/login')
 
-  return <DashboardLayoutClient>{children}</DashboardLayoutClient>
+  return <DashboardLayoutClient role={session.role || 'admin'}>{children}</DashboardLayoutClient>
 }
