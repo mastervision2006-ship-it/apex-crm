@@ -41,7 +41,7 @@ export default function LoginPage() {
       <div style={{ position:'relative', zIndex:1, width:'100%', maxWidth:400, padding:'0 24px' }}>
         {/* Logo */}
         <div style={{ textAlign:'center', marginBottom:36 }}>
-          <img src="/logo.png" alt="Apex Quantum" style={{ width:88, height:88, borderRadius:22, objectFit:'cover', marginBottom:18, boxShadow:'0 8px 32px rgba(108,99,255,0.35)' }} />
+          <img src="/logo.png" alt="Apex Quantum" style={{ width:96, height:96, objectFit:'contain', marginBottom:18, display:'block', margin:'0 auto 18px' }} />
           <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:-1, margin:0 }}>Apex Quantum</h1>
           <p style={{ color:'var(--muted)', fontSize:13, marginTop:6 }}>CRM Premium · Gestão de Leads</p>
         </div>
