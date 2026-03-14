@@ -107,7 +107,7 @@ export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
     <div className="page-pad">
       <div style={{ marginBottom:24, display:'flex', alignItems:'flex-start', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
         <div>
-          <h1 style={{ fontFamily:'Syne,sans-serif', fontSize:24, fontWeight:800, letterSpacing:-0.5, margin:0 }}>Leads</h1>
+          <h1 style={{ fontSize:24, fontWeight:800, letterSpacing:-0.5, margin:0 }}>Leads</h1>
           <p style={{ color:'var(--muted)', fontSize:13, marginTop:6 }}>{leads.length} leads captados no total</p>
         </div>
         <button onClick={openCreate} style={{
@@ -266,7 +266,7 @@ export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
           onClick={() => { setEditLead(null); setShowCreate(false) }}>
           <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:20, padding:28, width:'100%', maxWidth:480, maxHeight:'90vh', overflowY:'auto' }}
             onClick={e => e.stopPropagation()}>
-            <h2 style={{ fontFamily:'Syne,sans-serif', fontSize:17, fontWeight:800, margin:'0 0 20px' }}>
+            <h2 style={{ fontSize:17, fontWeight:800, margin:'0 0 20px' }}>
               {editLead ? 'Editar Lead' : 'Novo Lead'}
             </h2>
             <div style={{ display:'flex', flexDirection:'column', gap:14 }}>

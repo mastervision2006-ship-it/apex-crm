@@ -190,7 +190,7 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
         }}>
           <div style={{ width:40, height:4, borderRadius:2, background:'rgba(255,255,255,0.15)', margin:'0 auto 20px' }} />
           <span style={{ fontSize:10, padding:'3px 10px', borderRadius:20, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.5px', background:cor.bg, color:cor.text, border:`1px solid ${cor.border}` }}>{cardModal.fase}</span>
-          <p style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:20, margin:'12px 0 4px', lineHeight:1.2 }}>{cardModal.nome}</p>
+          <p style={{ fontWeight:800, fontSize:20, margin:'12px 0 4px', lineHeight:1.2 }}>{cardModal.nome}</p>
           <p style={{ fontSize:11, color:'var(--muted)', fontFamily:'monospace', margin:'0 0 20px' }}>{cardModal.id}</p>
 
           <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:24 }}>
@@ -266,7 +266,7 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
       {/* Header */}
       <div style={{ padding:'20px 16px 0', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
         <div>
-          <h1 style={{ fontFamily:'Syne,sans-serif', fontSize:22, fontWeight:800, letterSpacing:-0.5, margin:0 }}>Kanban Board</h1>
+          <h1 style={{ fontSize:22, fontWeight:800, letterSpacing:-0.5, margin:0 }}>Kanban Board</h1>
           <p style={{ color:'var(--muted)', fontSize:12, marginTop:4 }}>
             {leads.length} lead{leads.length!==1?'s':''} · {FASES.length} fases
           </p>

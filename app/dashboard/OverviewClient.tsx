@@ -43,7 +43,7 @@ export function OverviewClient({ leads }: { leads: Lead[] }) {
       {/* Header */}
       <div style={{ marginBottom:24, display:'flex', alignItems:'flex-start', justifyContent:'space-between' }}>
         <div>
-          <h1 style={{ fontFamily:'Syne,sans-serif', fontSize:24, fontWeight:800, letterSpacing:-0.5, margin:0 }}>Visão Geral</h1>
+          <h1 style={{ fontSize:24, fontWeight:800, letterSpacing:-0.5, margin:0 }}>Visão Geral</h1>
           <p style={{ color:'var(--muted)', fontSize:13, marginTop:6 }}>
             {new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
           </p>
@@ -58,7 +58,7 @@ export function OverviewClient({ leads }: { leads: Lead[] }) {
             <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:KPI_COLORS[i] }} />
             <div style={{ position:'absolute', right:16, top:16, fontSize:22, opacity:0.2 }}>{k.icon}</div>
             <p style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'1px', color:'var(--muted)', marginBottom:10 }}>{k.label}</p>
-            <p style={{ fontFamily:'Syne,sans-serif', fontSize:28, fontWeight:800, color:KPI_COLORS[i], lineHeight:1 }}>{k.value}</p>
+            <p style={{ fontSize:28, fontWeight:800, color:KPI_COLORS[i], lineHeight:1 }}>{k.value}</p>
             <p style={{ fontSize:11, color:'var(--muted)', marginTop:6 }}>{k.sub}</p>
           </div>
         ))}
@@ -67,7 +67,7 @@ export function OverviewClient({ leads }: { leads: Lead[] }) {
       {/* Charts */}
       <div className="grid-charts">
         <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:16, padding:24 }}>
-          <p style={{ fontFamily:'Syne,sans-serif', fontSize:13, fontWeight:700, marginBottom:20 }}>🎯 Leads por Fase</p>
+          <p style={{ fontSize:13, fontWeight:700, marginBottom:20 }}>🎯 Leads por Fase</p>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value">
@@ -79,7 +79,7 @@ export function OverviewClient({ leads }: { leads: Lead[] }) {
         </div>
 
         <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:16, padding:24 }}>
-          <p style={{ fontFamily:'Syne,sans-serif', fontSize:13, fontWeight:700, marginBottom:20 }}>📅 Leads por Mês</p>
+          <p style={{ fontSize:13, fontWeight:700, marginBottom:20 }}>📅 Leads por Mês</p>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={barData} barSize={32}>
               <XAxis dataKey="name" tick={{ fill:'var(--muted)', fontSize:11 }} axisLine={false} tickLine={false} />
@@ -94,7 +94,7 @@ export function OverviewClient({ leads }: { leads: Lead[] }) {
       {/* Funil + Últimos */}
       <div className="grid-half">
         <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:16, padding:24 }}>
-          <p style={{ fontFamily:'Syne,sans-serif', fontSize:13, fontWeight:700, marginBottom:20 }}>🔻 Funil de Conversão</p>
+          <p style={{ fontSize:13, fontWeight:700, marginBottom:20 }}>🔻 Funil de Conversão</p>
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
             {FASES.map(fase => {
               const cnt = leads.filter(l=>l.fase===fase).length
@@ -116,7 +116,7 @@ export function OverviewClient({ leads }: { leads: Lead[] }) {
         </div>
 
         <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:16, padding:24 }}>
-          <p style={{ fontFamily:'Syne,sans-serif', fontSize:13, fontWeight:700, marginBottom:20 }}>🕐 Últimos Leads</p>
+          <p style={{ fontSize:13, fontWeight:700, marginBottom:20 }}>🕐 Últimos Leads</p>
           <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
             {ultimos.map(l => {
               const cor = COR[l.fase]?.text || '#6b7280'

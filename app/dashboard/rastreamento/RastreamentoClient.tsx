@@ -52,7 +52,7 @@ export function RastreamentoClient({ leads }: { leads: Lead[] }) {
     <div className="page-pad">
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontFamily: 'Syne,sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: -0.5, margin: 0 }}>Rastreamento</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5, margin: 0 }}>Rastreamento</h1>
         <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 6 }}>Origem dos leads por UTM</p>
       </div>
 
@@ -67,7 +67,7 @@ export function RastreamentoClient({ leads }: { leads: Lead[] }) {
           <div key={k.label} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, padding: 16, position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: k.color }} />
             <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--muted)', margin: '0 0 8px' }}>{k.label}</p>
-            <p style={{ fontFamily: 'Syne,sans-serif', fontSize: 26, fontWeight: 800, color: k.color, margin: 0, lineHeight: 1 }}>{k.value}</p>
+            <p style={{ fontSize: 26, fontWeight: 800, color: k.color, margin: 0, lineHeight: 1 }}>{k.value}</p>
           </div>
         ))}
       </div>

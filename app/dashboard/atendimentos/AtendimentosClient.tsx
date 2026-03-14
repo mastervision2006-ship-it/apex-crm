@@ -148,7 +148,7 @@ export function AtendimentosClient({ leads: initialLeads }: { leads: Lead[] }) {
 
       {/* Header */}
       <div style={{ marginBottom:24 }}>
-        <h1 style={{ fontFamily:'Syne,sans-serif', fontSize:24, fontWeight:800, letterSpacing:-0.5, margin:0 }}>Atendimentos</h1>
+        <h1 style={{ fontSize:24, fontWeight:800, letterSpacing:-0.5, margin:0 }}>Atendimentos</h1>
         <p style={{ color:'var(--muted)', fontSize:13, marginTop:6 }}>Agenda de atendimentos por prioridade</p>
       </div>
 
@@ -157,24 +157,24 @@ export function AtendimentosClient({ leads: initialLeads }: { leads: Lead[] }) {
         <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:14, padding:16, position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'#6c63ff' }} />
           <p style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'1px', color:'var(--muted)', margin:'0 0 8px' }}>Hoje</p>
-          <p style={{ fontFamily:'Syne,sans-serif', fontSize:26, fontWeight:800, color:'#6c63ff', margin:0 }}>{hoje_count}</p>
+          <p style={{ fontSize:26, fontWeight:800, color:'#6c63ff', margin:0 }}>{hoje_count}</p>
         </div>
         <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:14, padding:16, position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'#ff4d6d' }} />
           <p style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'1px', color:'var(--muted)', margin:'0 0 8px' }}>Atrasados</p>
-          <p style={{ fontFamily:'Syne,sans-serif', fontSize:26, fontWeight:800, color:'#ff4d6d', margin:0 }}>{atrasados}</p>
+          <p style={{ fontSize:26, fontWeight:800, color:'#ff4d6d', margin:0 }}>{atrasados}</p>
         </div>
         <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:14, padding:16, position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'#00d4aa' }} />
           <p style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'1px', color:'var(--muted)', margin:'0 0 8px' }}>Próximo</p>
-          <p style={{ fontFamily:'Syne,sans-serif', fontSize:16, fontWeight:800, color:'#00d4aa', margin:0 }}>
+          <p style={{ fontSize:16, fontWeight:800, color:'#00d4aa', margin:0 }}>
             {proximo ? `${proximo.lead.nome.split(' ')[0]} ${countdown(proximo.dt)}` : '—'}
           </p>
         </div>
         <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:14, padding:16, position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'#4a90d9' }} />
           <p style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'1px', color:'var(--muted)', margin:'0 0 8px' }}>Total agendados</p>
-          <p style={{ fontFamily:'Syne,sans-serif', fontSize:26, fontWeight:800, color:'#4a90d9', margin:0 }}>{agendados.length}</p>
+          <p style={{ fontSize:26, fontWeight:800, color:'#4a90d9', margin:0 }}>{agendados.length}</p>
         </div>
       </div>
 
@@ -199,7 +199,7 @@ export function AtendimentosClient({ leads: initialLeads }: { leads: Lead[] }) {
                       <span style={{ fontSize:10, padding:'2px 8px', borderRadius:20, fontWeight:600, background:cor.bg, color:cor.text, border:`1px solid ${cor.border}` }}>{lead.fase}</span>
                     </div>
 
-                    <p style={{ fontFamily:'Syne,sans-serif', fontSize:17, fontWeight:800, margin:'0 0 4px', color:'#f0f2f8' }}>{lead.nome}</p>
+                    <p style={{ fontSize:17, fontWeight:800, margin:'0 0 4px', color:'#f0f2f8' }}>{lead.nome}</p>
 
                     <div style={{ display:'flex', alignItems:'center', gap:12, flexWrap:'wrap', marginBottom: lead.feedback ? 10 : 0 }}>
                       <span style={{ fontSize:13, fontWeight:700, color: urg === 'atrasado' ? '#ff4d6d' : '#f5a623' }}>
@@ -253,7 +253,7 @@ export function AtendimentosClient({ leads: initialLeads }: { leads: Lead[] }) {
         <div style={{ position:'fixed', inset:0, zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}>
           <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.7)' }} onClick={() => setModalAtendido(null)} />
           <div style={{ position:'relative', zIndex:1, background:'var(--surface)', border:'1px solid var(--border)', borderRadius:20, padding:24, width:'100%', maxWidth:420 }}>
-            <h3 style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:18, margin:'0 0 4px' }}>Registrar Atendimento</h3>
+            <h3 style={{ fontWeight:800, fontSize:18, margin:'0 0 4px' }}>Registrar Atendimento</h3>
             <p style={{ color:'var(--muted)', fontSize:13, margin:'0 0 20px' }}>{modalAtendido.nome}</p>
 
             <label style={{ fontSize:12, color:'var(--muted)', display:'block', marginBottom:6 }}>Resultado / Feedback</label>
@@ -283,7 +283,7 @@ export function AtendimentosClient({ leads: initialLeads }: { leads: Lead[] }) {
         <div style={{ position:'fixed', inset:0, zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}>
           <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.7)' }} onClick={() => setModalRemarcar(null)} />
           <div style={{ position:'relative', zIndex:1, background:'var(--surface)', border:'1px solid var(--border)', borderRadius:20, padding:24, width:'100%', maxWidth:380 }}>
-            <h3 style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:18, margin:'0 0 4px' }}>Remarcar Atendimento</h3>
+            <h3 style={{ fontWeight:800, fontSize:18, margin:'0 0 4px' }}>Remarcar Atendimento</h3>
             <p style={{ color:'var(--muted)', fontSize:13, margin:'0 0 20px' }}>{modalRemarcar.nome}</p>
 
             <label style={{ fontSize:12, color:'var(--muted)', display:'block', marginBottom:6 }}>Data</label>

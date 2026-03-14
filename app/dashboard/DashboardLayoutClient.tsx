@@ -20,7 +20,7 @@ export function DashboardLayoutClient({ children, role }: { children: React.Reac
         </button>
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
           <img src="/logo.png" alt="Apex Quantum" style={{ width:28, height:28, borderRadius:8, objectFit:'cover' }} />
-          <span style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:14 }}>Apex Quantum</span>
+          <span style={{ fontWeight:800, fontSize:14 }}>Apex Quantum</span>
         </div>
       </div>
 

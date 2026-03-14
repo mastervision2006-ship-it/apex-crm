@@ -12,7 +12,7 @@ export default async function RelatorioPage() {
   return (
     <div className="page-pad">
       <div style={{ marginBottom:24 }}>
-        <h1 style={{ fontFamily:'Syne,sans-serif', fontSize:24, fontWeight:800, letterSpacing:-0.5, margin:0 }}>Relatório</h1>
+        <h1 style={{ fontSize:24, fontWeight:800, letterSpacing:-0.5, margin:0 }}>Relatório</h1>
         <p style={{ color:'var(--muted)', fontSize:13, marginTop:6 }}>Métricas detalhadas do seu funil</p>
       </div>
 
@@ -26,7 +26,7 @@ export default async function RelatorioPage() {
         ].map(m=>(
           <div key={m.label} style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:16, padding:20 }}>
             <p style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'1px', color:'var(--muted)', marginBottom:10 }}>{m.label}</p>
-            <p style={{ fontFamily:'Syne,sans-serif', fontSize:28, fontWeight:800, color:m.color, lineHeight:1 }}>{m.value}</p>
+            <p style={{ fontSize:28, fontWeight:800, color:m.color, lineHeight:1 }}>{m.value}</p>
             <p style={{ fontSize:11, color:'var(--muted)', marginTop:6 }}>{m.desc}</p>
           </div>
         ))}
@@ -34,7 +34,7 @@ export default async function RelatorioPage() {
 
       {/* Tabela por fase */}
       <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:16, padding:24 }}>
-        <p style={{ fontFamily:'Syne,sans-serif', fontSize:14, fontWeight:700, marginBottom:20 }}>Detalhamento por Fase</p>
+        <p style={{ fontSize:14, fontWeight:700, marginBottom:20 }}>Detalhamento por Fase</p>
 
         {/* Desktop: tabela */}
         <div style={{ overflowX:'auto' }}>
@@ -59,7 +59,7 @@ export default async function RelatorioPage() {
                     <td style={{ padding:'14px 0', paddingRight:16 }}>
                       <span style={{ fontSize:11, padding:'3px 10px', borderRadius:20, fontWeight:600, background:cor.bg, color:cor.text, border:`1px solid ${cor.border}` }}>{fase}</span>
                     </td>
-                    <td style={{ padding:'14px 0', paddingRight:16, fontFamily:'Syne,sans-serif', fontWeight:700, color:cor.text, fontSize:18 }}>{cnt}</td>
+                    <td style={{ padding:'14px 0', paddingRight:16, fontWeight:700, color:cor.text, fontSize:18 }}>{cnt}</td>
                     <td style={{ padding:'14px 0', paddingRight:16 }}>
                       <div style={{ display:'flex', alignItems:'center', gap:10 }}>
                         <div style={{ height:6, width:80, borderRadius:3, background:'rgba(255,255,255,0.05)', flexShrink:0 }}>
