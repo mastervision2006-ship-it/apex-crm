@@ -68,7 +68,7 @@ export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
       const res  = await fetch('/api/create-lead', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(form) })
       const data = await res.json()
       if (data.success) {
-        const newLead: Lead = { id: 'novo', dias: 0, resp:'', ultimaAt:'', dataCad: new Date().toLocaleDateString('pt-BR'), ...form }
+        const newLead: Lead = { id: 'novo', dias: 0, resp:'', ultimaAt:'', dataCad: new Date().toLocaleDateString('pt-BR'), utm_source:'', utm_campaign:'', utm_medium:'', utm_content:'', utm_term:'', ...form }
         setLeads(ls => [...ls, newLead])
         setShowCreate(false)
         showToast('Lead criado!')
