@@ -1,5 +1,5 @@
 import { fetchLeads, FASES, COR } from '@/lib/sheets'
-
+export const dynamic = 'force-dynamic'
 export default async function RelatorioPage() {
   const leads     = await fetchLeads()
   const total     = leads.length
