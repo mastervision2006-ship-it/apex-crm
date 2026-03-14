@@ -1,5 +1,6 @@
 'use client'
 import { Lead, FASES, COR } from '@/lib/sheets'
+import { NotificationBell } from '@/components/NotificationBell'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 const KPI_COLORS = ['#6c63ff','#4a90d9','#9b59b6','#00d4aa','#f5a623']
@@ -40,11 +41,14 @@ export function OverviewClient({ leads }: { leads: Lead[] }) {
   return (
     <div className="page-pad">
       {/* Header */}
-      <div style={{ marginBottom:24 }}>
-        <h1 style={{ fontFamily:'Syne,sans-serif', fontSize:24, fontWeight:800, letterSpacing:-0.5, margin:0 }}>Visão Geral</h1>
-        <p style={{ color:'var(--muted)', fontSize:13, marginTop:6 }}>
-          {new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
-        </p>
+      <div style={{ marginBottom:24, display:'flex', alignItems:'flex-start', justifyContent:'space-between' }}>
+        <div>
+          <h1 style={{ fontFamily:'Syne,sans-serif', fontSize:24, fontWeight:800, letterSpacing:-0.5, margin:0 }}>Visão Geral</h1>
+          <p style={{ color:'var(--muted)', fontSize:13, marginTop:6 }}>
+            {new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+          </p>
+        </div>
+        <NotificationBell />
       </div>
 
       {/* KPIs */}

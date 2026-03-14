@@ -547,6 +547,9 @@ video {
 .uppercase {
   text-transform: uppercase;
 }
+.underline {
+  text-decoration-line: underline;
+}
 .outline {
   outline-style: solid;
 }

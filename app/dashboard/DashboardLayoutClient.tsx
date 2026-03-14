@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import { Sidebar } from '@/components/Sidebar'
-
 export function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
