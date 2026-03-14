@@ -4,6 +4,15 @@ import { Lead, FASES, COR } from '@/lib/sheets'
 
 const EMPTY_FORM = { nome:'', email:'', tel:'', atend:'', fase:'Novo Lead' as Lead['fase'], feedback:'' }
 
+function calcDias(dataCad: string): number {
+  if (!dataCad) return 0
+  const [datePart] = dataCad.split(' ')
+  const [day, month, year] = datePart.split('/')
+  const start = new Date(Number(year), Number(month) - 1, Number(day))
+  if (isNaN(start.getTime())) return 0
+  return Math.max(0, Math.floor((Date.now() - start.getTime()) / 86400000))
+}
+
 export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
   const [leads, setLeads]           = useState(initialLeads)
   const [search, setSearch]         = useState('')
@@ -166,7 +175,7 @@ export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
                     <span style={{ fontSize:11, padding:'3px 10px', borderRadius:20, fontWeight:600, whiteSpace:'nowrap', background:cor.bg, color:cor.text, border:`1px solid ${cor.border}` }}>{l.fase}</span>
                   </td>
                   <td style={{ padding:'12px 16px' }}>
-                    <span style={{ fontSize:11, padding:'2px 8px', borderRadius:10, background:'rgba(255,255,255,0.05)', color:'var(--muted)' }}>{l.dias}d</span>
+                    <span style={{ fontSize:11, padding:'2px 8px', borderRadius:10, background:'rgba(255,255,255,0.05)', color:'var(--muted)' }}>{calcDias(l.dataCad)}d</span>
                   </td>
                   <td style={{ padding:'12px 16px' }}>
                     <div style={{ display:'flex', gap:6 }}>
@@ -229,7 +238,7 @@ export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
               </div>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:12 }}>
                 <button onClick={() => openEdit(l)} style={{ padding:'6px 14px', borderRadius:8, border:'1px solid var(--border)', background:'transparent', color:'var(--muted)', fontSize:12, cursor:'pointer' }}>✏️ Editar</button>
-                <span style={{ fontSize:11, padding:'2px 8px', borderRadius:10, background:'rgba(255,255,255,0.05)', color:'var(--muted)' }}>{l.dias}d</span>
+                <span style={{ fontSize:11, padding:'2px 8px', borderRadius:10, background:'rgba(255,255,255,0.05)', color:'var(--muted)' }}>{calcDias(l.dataCad)}d</span>
               </div>
             </div>
           )
