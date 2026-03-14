@@ -119,7 +119,7 @@ export function NotificationBell() {
     }
 
     check()
-    const id = setInterval(check, 60_000)
+    const id = setInterval(check, 15_000)
     return () => clearInterval(id)
   }, [])
 
