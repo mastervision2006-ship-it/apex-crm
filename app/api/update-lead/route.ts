@@ -1,27 +1,16 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
 import { revalidatePath } from 'next/cache'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(req: Request) {
   const session = await getSession()
   if (!session.loggedIn) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
   const { id, fase } = await req.json()
-  const url = process.env.APPS_SCRIPT_URL
-  if (!url || url.includes('SEU_ID')) {
-    revalidatePath('/dashboard/kanban')
-    return NextResponse.json({ success: true }) // mock
-  }
+  const { error } = await supabase.from('leads').update({ fase }).eq('id', id)
+  if (error) { console.error('update-lead:', error.message); return NextResponse.json({ success: false }) }
 
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'updateFase', id, fase }),
-    })
-    const data = await res.json()
-    if (data.success) revalidatePath('/dashboard/kanban')
-    return NextResponse.json({ success: data.success })
-  } catch {
-    return NextResponse.json({ success: false })
-  }
+  revalidatePath('/dashboard/kanban')
+  return NextResponse.json({ success: true })
 }
