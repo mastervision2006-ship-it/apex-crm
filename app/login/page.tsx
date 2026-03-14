@@ -40,37 +40,37 @@ export default function LoginPage() {
 
       <div style={{ position:'relative', zIndex:1, width:'100%', maxWidth:400, padding:'0 24px' }}>
         {/* Logo */}
-        <div style={{ textAlign:'center', marginBottom:40 }}>
-          <img src="/logo.png" alt="Apex Quantum" style={{ width:56, height:56, borderRadius:16, objectFit:'cover', marginBottom:20 }} />
-          <h1 style={{ fontFamily:'Syne,sans-serif', fontSize:28, fontWeight:800, letterSpacing:-1, margin:0 }}>Apex Quantum</h1>
-          <p style={{ color:'var(--muted)', fontSize:14, marginTop:6 }}>CRM Premium · Gestão de Leads</p>
+        <div style={{ textAlign:'center', marginBottom:36 }}>
+          <img src="/logo.png" alt="Apex Quantum" style={{ width:88, height:88, borderRadius:22, objectFit:'cover', marginBottom:18, boxShadow:'0 8px 32px rgba(108,99,255,0.35)' }} />
+          <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:-1, margin:0 }}>Apex Quantum</h1>
+          <p style={{ color:'var(--muted)', fontSize:13, marginTop:6 }}>CRM Premium · Gestão de Leads</p>
         </div>
 
         {/* Card */}
         <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:20, padding:32 }}>
-          <h2 style={{ fontFamily:'Syne,sans-serif', fontSize:18, fontWeight:700, marginBottom:8, textAlign:'center' }}>Entrar no sistema</h2>
+          <h2 style={{ fontSize:18, fontWeight:700, marginBottom:8, textAlign:'center' }}>Entrar no sistema</h2>
           <p style={{ color:'var(--muted)', fontSize:13, textAlign:'center', marginBottom:28 }}>Digite suas credenciais de acesso</p>
 
           <form onSubmit={handleLogin} style={{ display:'flex', flexDirection:'column', gap:14 }}>
             <div>
-              <label style={{ fontSize:12, color:'var(--muted)', display:'block', marginBottom:6, fontWeight:500 }}>USUÁRIO</label>
+              <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:6, fontWeight:600, letterSpacing:'0.8px' }}>USUÁRIO</label>
               <input
                 value={username}
                 onChange={e => setUsername(e.target.value)}
-                placeholder="Admin"
+                placeholder="Digite seu usuário"
                 required
-                style={{ width:'100%', padding:'12px 14px', borderRadius:12, background:'var(--surface2)', border:'1px solid var(--border)', color:'#f0f2f8', fontSize:14, outline:'none' }}
+                style={{ width:'100%', padding:'12px 14px', borderRadius:12, background:'var(--surface2)', border:'1px solid var(--border)', color:'#f0f2f8', fontSize:14, outline:'none', boxSizing:'border-box' }}
               />
             </div>
             <div>
-              <label style={{ fontSize:12, color:'var(--muted)', display:'block', marginBottom:6, fontWeight:500 }}>SENHA</label>
+              <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:6, fontWeight:600, letterSpacing:'0.8px' }}>SENHA</label>
               <input
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Digite sua senha"
                 required
-                style={{ width:'100%', padding:'12px 14px', borderRadius:12, background:'var(--surface2)', border:'1px solid var(--border)', color:'#f0f2f8', fontSize:14, outline:'none' }}
+                style={{ width:'100%', padding:'12px 14px', borderRadius:12, background:'var(--surface2)', border:'1px solid var(--border)', color:'#f0f2f8', fontSize:14, outline:'none', boxSizing:'border-box' }}
               />
             </div>
 
