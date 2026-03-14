@@ -1,12 +1,14 @@
 'use client'
 import { useState } from 'react'
 import { Sidebar } from '@/components/Sidebar'
+import { NotificationPoller } from '@/components/NotificationPoller'
 
 export function DashboardLayoutClient({ children, role }: { children: React.ReactNode, role: 'admin' | 'gerente' }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
     <div style={{ display:'flex', minHeight:'100vh' }}>
+      <NotificationPoller />
       {/* Mobile top bar */}
       <div className="mobile-topbar">
         <button
