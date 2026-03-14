@@ -9,21 +9,11 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
   const [saving, setSaving]             = useState<string|null>(null)
   const [toast, setToast]               = useState<{msg:string, ok:boolean}|null>(null)
   const [activeColIdx, setActiveColIdx] = useState(0)
-  const [cardModal, setCardModal]       = useState<Lead|null>(null)   // mobile
-  const [moveDropdown, setMoveDropdown] = useState<string|null>(null) // desktop
+  const [cardModal, setCardModal] = useState<Lead|null>(null) // mobile
 
   const boardRef  = useRef<HTMLDivElement>(null)
   const mobileRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<ReturnType<typeof setInterval>|null>(null)
-
-  /* ── fechar dropdown ao clicar fora ── */
-  useEffect(() => {
-    if (!moveDropdown) return
-    const close = () => setMoveDropdown(null)
-    // Usar 'click' (não 'mousedown') para não fechar antes do onClick dos botões
-    document.addEventListener('click', close)
-    return () => document.removeEventListener('click', close)
-  }, [moveDropdown])
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok })
@@ -123,7 +113,7 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
   const renderCard = (lead: Lead, fase: Fase, isMobile: boolean) => {
     const cor      = COR[fase]
     const isSaving = saving === lead.id
-    const isDropOpen = moveDropdown === lead.id
+
 
     return (
       <div
@@ -159,7 +149,7 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
         )}
 
         {/* Nome */}
-        <p style={{ fontSize:13, fontWeight:600, lineHeight:1.35, margin:'0 0 8px', color:'#f0f2f8', paddingRight: isMobile ? 0 : 60 }}>{lead.nome}</p>
+        <p style={{ fontSize:13, fontWeight:600, lineHeight:1.35, margin:'0 0 8px', color:'#f0f2f8', paddingRight: 0 }}>{lead.nome}</p>
 
         {/* Infos */}
         {lead.tel   && <p style={{ fontSize:11, color:'var(--muted)', margin:'0 0 3px' }}>📱 {lead.tel}</p>}
@@ -178,67 +168,6 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
           </div>
         )}
 
-        {/* ── Botão MOVER (desktop only) ── */}
-        {!isMobile && (
-          <div style={{ position:'absolute', top:10, right:10 }} onClick={e => e.stopPropagation()}>
-            <button
-              onClick={e => { e.stopPropagation(); setMoveDropdown(isDropOpen ? null : lead.id) }}
-              style={{
-                padding:'3px 8px', borderRadius:7, border:'1px solid var(--border)',
-                background: isDropOpen ? 'rgba(108,99,255,0.2)' : 'rgba(255,255,255,0.05)',
-                color: isDropOpen ? '#6c63ff' : 'var(--muted)',
-                fontSize:10, fontWeight:700, cursor:'pointer', letterSpacing:'0.3px',
-                transition:'all 0.15s',
-              }}
-            >
-              MOVER {isDropOpen ? '▲' : '▼'}
-            </button>
-
-            {/* Dropdown */}
-            {isDropOpen && (
-              <div
-                onClick={e => e.stopPropagation()}
-                style={{
-                  position:'absolute', top:'calc(100% + 6px)', right:0, zIndex:50,
-                  background:'var(--surface)', border:'1px solid var(--border)',
-                  borderRadius:12, padding:6, minWidth:180,
-                  boxShadow:'0 8px 24px rgba(0,0,0,0.5)',
-                  display:'flex', flexDirection:'column', gap:3,
-                }}
-              >
-                <p style={{ fontSize:10, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.8px', padding:'4px 10px 6px', margin:0, borderBottom:'1px solid var(--border)' }}>
-                  Mover para
-                </p>
-                {FASES.map(f => {
-                  const c = COR[f]
-                  const isCurrent = lead.fase === f
-                  return (
-                    <button
-                      key={f}
-                      onClick={e => { e.stopPropagation(); moveLead(lead, f) }}
-                      disabled={isCurrent}
-                      style={{
-                        width:'100%', padding:'8px 10px', borderRadius:8, textAlign:'left',
-                        border:'none', cursor: isCurrent ? 'default' : 'pointer',
-                        background: isCurrent ? c.bg : 'transparent',
-                        color: isCurrent ? c.text : '#f0f2f8',
-                        fontSize:12, fontWeight: isCurrent ? 700 : 400,
-                        display:'flex', alignItems:'center', gap:8,
-                        transition:'background 0.1s',
-                      }}
-                      onMouseEnter={e => { if (!isCurrent) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)' }}
-                      onMouseLeave={e => { if (!isCurrent) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-                    >
-                      <span style={{ width:8, height:8, borderRadius:'50%', background:c.text, flexShrink:0, display:'inline-block' }} />
-                      {f}
-                      {isCurrent && <span style={{ marginLeft:'auto', fontSize:10, opacity:0.6 }}>atual</span>}
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        )}
       </div>
     )
   }
