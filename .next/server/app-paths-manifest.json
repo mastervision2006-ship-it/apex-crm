@@ -1,6 +1,6 @@
 {
-  "/dashboard/relatorio/page": "app/dashboard/relatorio/page.js",
+  "/dashboard/kanban/page": "app/dashboard/kanban/page.js",
   "/dashboard/leads/page": "app/dashboard/leads/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/dashboard/kanban/page": "app/dashboard/kanban/page.js"
+  "/dashboard/relatorio/page": "app/dashboard/relatorio/page.js",
+  "/dashboard/page": "app/dashboard/page.js"
 }

@@ -455,17 +455,21 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
                 onDrop={()=>handleDrop(fase)}
                 onDragLeave={e=>{if(!e.currentTarget.contains(e.relatedTarget as Node)){setOver(null);stopScroll()}}}
                 style={{
-                  borderRadius:16, padding:12, minHeight:420, transition:'background 0.15s, border-color 0.15s',
+                  borderRadius:16, transition:'background 0.15s, border-color 0.15s',
                   background: isOver ? cor.bg : 'var(--surface)',
                   border:`1px solid ${isOver?cor.border:'var(--border)'}`,
                   borderTop:`3px solid ${cor.text}`,
+                  display:'flex', flexDirection:'column',
+                  height:'calc(100vh - 220px)',
                 }}
               >
-                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12, padding:'0 4px' }}>
+                {/* Header fixo da coluna */}
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 14px', borderBottom:'1px solid var(--border)', flexShrink:0 }}>
                   <span style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.8px', color:cor.text }}>{fase}</span>
                   <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:10, background:cor.bg, color:cor.text }}>{colLeads.length}</span>
                 </div>
-                <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                {/* Cards com scroll interno */}
+                <div style={{ display:'flex', flexDirection:'column', gap:8, padding:12, overflowY:'auto', flex:1 }}>
                   {colLeads.length===0&&(
                     <div style={{ textAlign:'center', padding:'40px 0', fontSize:11, color:'var(--muted)', border:'1px dashed var(--border)', borderRadius:10 }}>
                       Solte aqui
