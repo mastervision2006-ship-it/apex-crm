@@ -41,11 +41,10 @@ export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
      MOVE LEAD — core da funcionalidade
   ════════════════════════════════════ */
   const moveLead = async (lead: Lead, novaFase: Fase) => {
-    if (lead.fase === novaFase) { setCardModal(null); setMoveDropdown(null); return }
+    if (lead.fase === novaFase) { setCardModal(null); return }
 
     // 1. Fecha UI
     setCardModal(null)
-    setMoveDropdown(null)
 
     // 2. Optimistic update — move imediatamente na tela
     setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, fase: novaFase } : l))
