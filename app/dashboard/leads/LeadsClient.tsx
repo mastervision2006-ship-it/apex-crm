@@ -50,16 +50,15 @@ export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
   async function handleSave() {
     if (!editLead) return
     setSaving(true)
-    const prev = leads
-    setLeads(ls => ls.map(l => l.id === editLead.id ? { ...l, ...form } : l))
     setEditLead(null)
     try {
       const res  = await fetch('/api/edit-lead', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id: editLead.id, fields: form }) })
       const data = await res.json()
-      if (!data.success) { setLeads(prev); showToast('Erro ao salvar. Tente novamente.') }
+      // Realtime UPDATE dispara automaticamente e sincroniza o estado
+      if (!data.success) showToast('Erro ao salvar. Tente novamente.')
       else showToast('Lead atualizado!')
     } catch {
-      setLeads(prev); showToast('Erro de conexão.')
+      showToast('Erro de conexão.')
     } finally { setSaving(false) }
   }
 
@@ -70,8 +69,7 @@ export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
       const res  = await fetch('/api/create-lead', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(form) })
       const data = await res.json()
       if (data.success) {
-        const newLead: Lead = { id: 'novo', dias: 0, resp:'', ultimaAt:'', dataCad: new Date().toLocaleDateString('pt-BR'), utm_source:'', utm_campaign:'', utm_medium:'', utm_content:'', utm_term:'', ...form }
-        setLeads(ls => [...ls, newLead])
+        // Não adiciona manualmente — o Realtime INSERT já cuida disso
         setShowCreate(false)
         showToast('Lead criado!')
       } else {
@@ -84,15 +82,18 @@ export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
 
   async function handleDelete(id: string) {
     if (!confirm('Tem certeza que deseja excluir este lead?')) return
-    const prev = leads
     setLeads(ls => ls.filter(l => l.id !== id))
     try {
       const res  = await fetch('/api/delete-lead', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id }) })
       const data = await res.json()
-      if (!data.success) { setLeads(prev); showToast('Erro ao excluir.') }
-      else showToast('Lead excluído.')
+      // Realtime DELETE confirma a remoção; se falhar, restaura
+      if (!data.success) {
+        setLeads(ls => leads) // restaura estado anterior
+        showToast('Erro ao excluir.')
+      } else showToast('Lead excluído.')
     } catch {
-      setLeads(prev); showToast('Erro de conexão.')
+      setLeads(leads)
+      showToast('Erro de conexão.')
     }
   }
 
