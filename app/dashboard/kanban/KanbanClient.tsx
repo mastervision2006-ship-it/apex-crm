@@ -1,9 +1,11 @@
 'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Lead, FASES, COR, Fase } from '@/lib/sheets'
+import { useRealtimeLeads } from '@/lib/useRealtimeLeads'
 
 export function KanbanClient({ initialLeads }: { initialLeads: Lead[] }) {
   const [leads, setLeads]               = useState<Lead[]>(initialLeads)
+  useRealtimeLeads(setLeads)
   const [dragging, setDragging]         = useState<string|null>(null)
   const [over, setOver]                 = useState<Fase|null>(null)
   const [saving, setSaving]             = useState<string|null>(null)

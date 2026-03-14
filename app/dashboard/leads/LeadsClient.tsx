@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { Lead, FASES, COR } from '@/lib/sheets'
+import { useRealtimeLeads } from '@/lib/useRealtimeLeads'
 
 const EMPTY_FORM = { nome:'', email:'', tel:'', atend:'', fase:'Novo Lead' as Lead['fase'], feedback:'' }
 
@@ -15,6 +16,7 @@ function calcDias(dataCad: string): number {
 
 export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
   const [leads, setLeads]           = useState(initialLeads)
+  useRealtimeLeads(setLeads)
   const [search, setSearch]         = useState('')
   const [faseFilter, setFaseFilter] = useState('todas')
   const [tooltip, setTooltip]       = useState<{ feedback: string; x: number; y: number } | null>(null)
