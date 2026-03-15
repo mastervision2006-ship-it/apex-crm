@@ -16,12 +16,41 @@ function groupBy<T>(arr: T[], key: (item: T) => string): Record<string, T[]> {
   }, {} as Record<string, T[]>)
 }
 
+// dataCad format: "DD/MM/YYYY HH:MM"
+function parseDateBR(dataCad: string | undefined): Date | null {
+  if (!dataCad) return null
+  const [datePart] = dataCad.split(' ')
+  const [d, m, y] = datePart.split('/')
+  if (!d || !m || !y) return null
+  return new Date(Number(y), Number(m) - 1, Number(d))
+}
+
+// Convert YYYY-MM-DD input value to local midnight Date
+function parseInputDate(val: string): Date | null {
+  if (!val) return null
+  const [y, m, d] = val.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+
 export function RastreamentoClient({ leads }: { leads: Lead[] }) {
   const [filtro, setFiltro] = useState<'criativo' | 'conjunto' | 'campanha'>('criativo')
   const [search, setSearch] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
 
-  const comUtm = leads.filter(l => l.utm_content || l.utm_campaign || l.utm_medium)
-  const semUtm = leads.filter(l => !l.utm_content && !l.utm_campaign && !l.utm_medium)
+  const fromDate = parseInputDate(dateFrom)
+  const toDate = parseInputDate(dateTo)
+
+  const filtered = leads.filter(l => {
+    const d = parseDateBR(l.dataCad)
+    if (!d) return true
+    if (fromDate && d < fromDate) return false
+    if (toDate && d > toDate) return false
+    return true
+  })
+
+  const comUtm = filtered.filter(l => l.utm_content || l.utm_campaign || l.utm_medium)
+  const semUtm = filtered.filter(l => !l.utm_content && !l.utm_campaign && !l.utm_medium)
 
   const keyFn = (l: Lead) => {
     if (filtro === 'criativo')  return parseParam(l.utm_content,  'name')
@@ -32,7 +61,7 @@ export function RastreamentoClient({ leads }: { leads: Lead[] }) {
   const grupos = groupBy(comUtm, keyFn)
   const sorted = Object.entries(grupos).sort((a, b) => b[1].length - a[1].length)
 
-  const leadsTable = [...leads]
+  const leadsTable = [...filtered]
     .reverse()
     .filter(l => {
       if (!search) return true
@@ -54,6 +83,31 @@ export function RastreamentoClient({ leads }: { leads: Lead[] }) {
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5, margin: 0 }}>Rastreamento</h1>
         <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 6 }}>Origem dos leads por UTM</p>
+      </div>
+
+      {/* Date filter */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Filtrar por data:</span>
+        <input
+          type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+          style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'rgba(255,255,255,0.04)', color: '#f0f2f8', fontSize: 12 }}
+        />
+        <span style={{ fontSize: 12, color: 'var(--muted)' }}>até</span>
+        <input
+          type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+          style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'rgba(255,255,255,0.04)', color: '#f0f2f8', fontSize: 12 }}
+        />
+        {(dateFrom || dateTo) && (
+          <button onClick={() => { setDateFrom(''); setDateTo('') }} style={{
+            padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'rgba(255,255,255,0.06)',
+            color: 'var(--muted)', fontSize: 12, cursor: 'pointer'
+          }}>
+            Limpar
+          </button>
+        )}
+        {(dateFrom || dateTo) && (
+          <span style={{ fontSize: 12, color: '#6c63ff', fontWeight: 600 }}>{filtered.length} leads no período</span>
+        )}
       </div>
 
       {/* KPIs */}
