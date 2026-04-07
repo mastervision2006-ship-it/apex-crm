@@ -6,6 +6,6 @@ export const dynamic = 'force-dynamic'
 export default async function RastreamentoPage() {
   const session = await getSession()
   if (session.role === 'gerente') redirect('/dashboard')
-  const leads = await fetchLeads()
+  const leads = await fetchLeads(session.role)
   return <RastreamentoClient leads={leads} />
 }

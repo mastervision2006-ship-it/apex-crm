@@ -1,7 +1,9 @@
 import { fetchLeads, FASES, COR } from '@/lib/sheets'
+import { getSession } from '@/lib/session'
 export const dynamic = 'force-dynamic'
 export default async function RelatorioPage() {
-  const leads     = await fetchLeads()
+  const session   = await getSession()
+  const leads     = await fetchLeads(session.role)
   const total     = leads.length
   const ganhos    = leads.filter(l=>l.fase==='Fechado/Ganho').length
   const taxa      = total ? ((ganhos/total)*100).toFixed(1) : '0.0'

@@ -17,6 +17,7 @@ export interface Lead {
   utm_medium:   string
   utm_content:  string
   utm_term:     string
+  source:       string
 }
 
 export type Fase = 'Novo Lead' | 'Contato Feito' | 'Negociação' | 'Fechado/Ganho' | 'Perdido'
@@ -31,8 +32,14 @@ export const COR: Record<Fase, { bg: string; text: string; border: string }> = {
   'Perdido':       { bg:'rgba(255,77,109,0.15)',   text:'#ff4d6d', border:'rgba(255,77,109,0.3)'  },
 }
 
-export async function fetchLeads(): Promise<Lead[]> {
-  const { data, error } = await supabase.from('leads').select('*').order('dataCad', { ascending: true })
+const ADMIN_ONLY_SOURCES = ['apex-ads-privado']
+
+export async function fetchLeads(role?: 'admin' | 'gerente'): Promise<Lead[]> {
+  let query = supabase.from('leads').select('*').order('dataCad', { ascending: true })
+  if (role === 'gerente') {
+    query = query.not('source', 'in', `(${ADMIN_ONLY_SOURCES.map(s => `"${s}"`).join(',')})`)
+  }
+  const { data, error } = await query
   if (error) { console.error('Supabase fetchLeads:', error.message); return [] }
   return (data || []) as Lead[]
 }
