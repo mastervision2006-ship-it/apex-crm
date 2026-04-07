@@ -35,7 +35,7 @@ export const COR: Record<Fase, { bg: string; text: string; border: string }> = {
 const ADMIN_ONLY_SOURCES = ['apex-ads-privado']
 
 export async function fetchLeads(role?: 'admin' | 'gerente'): Promise<Lead[]> {
-  let query = supabase.from('leads').select('*').order('dataCad', { ascending: true })
+  let query = supabase.from('leads').select('*').order('dataCad', { ascending: false })
   if (role === 'gerente') {
     query = query.not('source', 'in', `(${ADMIN_ONLY_SOURCES.map(s => `"${s}"`).join(',')})`)
   }
