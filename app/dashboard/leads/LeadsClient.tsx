@@ -14,11 +14,24 @@ function calcDias(dataCad: string): number {
   return Math.max(0, Math.floor((Date.now() - start.getTime()) / 86400000))
 }
 
+type SortKey = 'dataCad' | 'nome'
+type SortDir = 'asc' | 'desc'
+
+function parseDateBR(s: string): number {
+  if (!s) return 0
+  const [datePart, timePart = '00:00'] = s.split(' ')
+  const [d, m, y] = datePart.split('/')
+  const [h, min]  = timePart.split(':')
+  return new Date(+y, +m - 1, +d, +h, +min).getTime()
+}
+
 export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
   const [leads, setLeads]           = useState(initialLeads)
   useRealtimeLeads(setLeads)
   const [search, setSearch]         = useState('')
   const [faseFilter, setFaseFilter] = useState('todas')
+  const [sortKey, setSortKey]       = useState<SortKey>('dataCad')
+  const [sortDir, setSortDir]       = useState<SortDir>('desc')
   const [tooltip, setTooltip]       = useState<{ feedback: string; x: number; y: number } | null>(null)
   const [editLead, setEditLead]     = useState<Lead | null>(null)
   const [showCreate, setShowCreate] = useState(false)
@@ -26,11 +39,22 @@ export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
   const [saving, setSaving]         = useState(false)
   const [toast, setToast]           = useState('')
 
-  const filtered = [...leads].reverse().filter(l => {
-    const q  = search.toLowerCase()
-    const ok = !q || l.nome.toLowerCase().includes(q) || l.email.toLowerCase().includes(q) || l.tel.includes(q)
-    return ok && (faseFilter === 'todas' || l.fase === faseFilter)
-  })
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setSortKey(key); setSortDir(key === 'dataCad' ? 'desc' : 'asc') }
+  }
+
+  const filtered = [...leads]
+    .filter(l => {
+      const q  = search.toLowerCase()
+      const ok = !q || l.nome.toLowerCase().includes(q) || l.email.toLowerCase().includes(q) || l.tel.includes(q)
+      return ok && (faseFilter === 'todas' || l.fase === faseFilter)
+    })
+    .sort((a, b) => {
+      const mul = sortDir === 'asc' ? 1 : -1
+      if (sortKey === 'nome') return mul * a.nome.localeCompare(b.nome, 'pt-BR')
+      return mul * (parseDateBR(a.dataCad) - parseDateBR(b.dataCad))
+    })
 
   function showToast(msg: string) {
     setToast(msg)
@@ -142,9 +166,21 @@ export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
         <table style={{ width:'100%', borderCollapse:'collapse' }}>
           <thead>
             <tr style={{ borderBottom:'1px solid var(--border)' }}>
-              {['ID','Nome','Telefone','Email','Cadastro','Atendimento','Fase','Dias','Ações'].map(h=>(
-                <th key={h} style={{ padding:'12px 16px', textAlign:'left', fontSize:10, textTransform:'uppercase', letterSpacing:'0.8px', color:'var(--muted)', fontWeight:600 }}>{h}</th>
-              ))}
+              {(['ID','Nome','Telefone','Email','Cadastro','Atendimento','Fase','Dias','Ações'] as const).map(h => {
+                const key: SortKey | null = h === 'Nome' ? 'nome' : h === 'Cadastro' ? 'dataCad' : null
+                const active = key && sortKey === key
+                return (
+                  <th key={h} onClick={key ? () => toggleSort(key) : undefined}
+                    style={{ padding:'12px 16px', textAlign:'left', fontSize:10, textTransform:'uppercase', letterSpacing:'0.8px', color: active ? '#a89aff' : 'var(--muted)', fontWeight:600, cursor: key ? 'pointer' : 'default', userSelect:'none', whiteSpace:'nowrap' }}>
+                    {h}
+                    {key && (
+                      <span style={{ marginLeft:4, opacity: active ? 1 : 0.3, fontSize:9 }}>
+                        {active ? (sortDir === 'asc' ? '▲' : '▼') : '▲'}
+                      </span>
+                    )}
+                  </th>
+                )
+              })}
             </tr>
           </thead>
           <tbody>
