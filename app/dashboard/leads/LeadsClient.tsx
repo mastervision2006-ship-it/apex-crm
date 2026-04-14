@@ -203,6 +203,9 @@ export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
                         {(l.nome||'?')[0].toUpperCase()}
                       </div>
                       <span style={{ fontSize:13, fontWeight:500 }}>{l.nome}</span>
+                      {l.source === 'apex-ads-privado' && (
+                        <span style={{ fontSize:9, fontWeight:700, padding:'2px 6px', borderRadius:6, background:'rgba(79,70,229,0.18)', color:'#a5b4fc', border:'1px solid rgba(79,70,229,0.35)', letterSpacing:'0.4px', flexShrink:0 }}>Meta Ads</span>
+                      )}
                       {l.feedback && <span style={{ fontSize:9, color:'#6c63ff', marginLeft:2 }}>💬</span>}
                     </div>
                   </td>
@@ -248,7 +251,12 @@ export function LeadsClient({ leads: initialLeads }: { leads: Lead[] }) {
                   <p style={{ fontSize:14, fontWeight:600, margin:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{l.nome}</p>
                   <p style={{ fontSize:11, color:'var(--muted)', margin:0, fontFamily:'monospace' }}>{l.id}</p>
                 </div>
-                <span style={{ fontSize:10, padding:'4px 10px', borderRadius:20, fontWeight:600, background:cor.bg, color:cor.text, border:`1px solid ${cor.border}`, flexShrink:0, whiteSpace:'nowrap' }}>{l.fase}</span>
+                <div style={{ display:'flex', flexDirection:'column', gap:4, alignItems:'flex-end', flexShrink:0 }}>
+                  <span style={{ fontSize:10, padding:'4px 10px', borderRadius:20, fontWeight:600, background:cor.bg, color:cor.text, border:`1px solid ${cor.border}`, whiteSpace:'nowrap' }}>{l.fase}</span>
+                  {l.source === 'apex-ads-privado' && (
+                    <span style={{ fontSize:9, fontWeight:700, padding:'2px 6px', borderRadius:6, background:'rgba(79,70,229,0.18)', color:'#a5b4fc', border:'1px solid rgba(79,70,229,0.35)', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>Meta Ads</span>
+                  )}
+                </div>
               </div>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
                 <div>
