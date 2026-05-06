@@ -9,6 +9,7 @@ const nav = [
   { href:'/dashboard/atendimentos',   icon:'📅', label:'Atendimentos'  },
   { href:'/dashboard/relatorio',      icon:'📈', label:'Relatório'     },
   { href:'/dashboard/rastreamento',   icon:'🎯', label:'Rastreamento'  },
+  { href:'/dashboard/cupons',         icon:'🎟️', label:'Cupons'        },
 ]
 
 interface SidebarProps {
