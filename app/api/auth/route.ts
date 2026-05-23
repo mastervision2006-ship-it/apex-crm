@@ -3,7 +3,7 @@ import { getSession } from '@/lib/session'
 
 const USERS = [
   { username: 'Admin',   password: process.env.CRM_PASSWORD   || '@Apex26', role: 'admin'   as const },
-  { username: 'Gerente', password: process.env.GERENTE_PASSWORD || '@Apex26', role: 'gerente' as const },
+  { username: 'Gerente', password: process.env.GERENTE_PASSWORD || '@Nova2026', role: 'gerente' as const },
 ]
 
 export async function POST(req: Request) {
